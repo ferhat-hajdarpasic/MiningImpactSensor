@@ -1,5 +1,8 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿using Windows.ApplicationModel.Background;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using System;
+
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -25,6 +28,7 @@ namespace MiningImpactSensor
         {
             base.OnNavigatedTo(e);
             SensorTagPanel.Show();
+            this.RegisterBackgroundTask();
         }
 
         protected override void OnNavigatedFrom(Windows.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -32,6 +36,31 @@ namespace MiningImpactSensor
             base.OnNavigatedFrom(e);
             SensorTagPanel.Hide();
         }
+
+        private async void RegisterBackgroundTask()
+        {
+            BackgroundAccessStatus backgroundAccessStatus = await BackgroundExecutionManager.RequestAccessAsync();
+            if (backgroundAccessStatus == BackgroundAccessStatus.AllowedMayUseActiveRealTimeConnectivity ||
+                backgroundAccessStatus == BackgroundAccessStatus.AllowedWithAlwaysOnRealTimeConnectivity)
+            {
+                foreach (var task in BackgroundTaskRegistration.AllTasks)
+                {
+                    if (task.Value.Name == taskName)
+                    {
+                        task.Value.Unregister(true);
+                    }
+                }
+
+                BackgroundTaskBuilder taskBuilder = new BackgroundTaskBuilder();
+                taskBuilder.Name = taskName;
+                taskBuilder.TaskEntryPoint = taskEntryPoint;
+                taskBuilder.SetTrigger(new TimeTrigger(15, false));
+                var registration = taskBuilder.Register();
+            }
+        }
+
+        private const string taskName = "LiveTileBackgroundTask";
+        private const string taskEntryPoint = "LiveTileBackgroundTask.LiveTileTask";
 
     }    
 }

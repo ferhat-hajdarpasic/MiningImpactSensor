@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="43906ChrisLovett.SensorTag" Publisher="CN=ferha" Version="1.2.0.20" />
+  <Identity Name="43906ChrisLovett.SensorTag" Publisher="CN=ferha" Version="1.2.0.21" />
   <Properties>
     <DisplayName>MiningImpactSensor</DisplayName>
     <PublisherDisplayName>Ferhat Hajdarpasic</PublisherDisplayName>
@@ -16,12 +16,22 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="MiningImpactSensor.App">
       <m2:VisualElements DisplayName="MiningImpactSensor" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="MiningImpactSensor" ForegroundText="light" BackgroundColor="#464646">
+        <m2:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
+        </m2:DefaultTile>
+        <m2:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\BadgeLogo.png" />
         <m2:SplashScreen Image="Assets\SplashScreen.png" />
       </m2:VisualElements>
+      <Extensions>
+        <Extension Category="windows.backgroundTasks" EntryPoint="LiveTileBackgroundTask.LiveTileTask">
+          <BackgroundTasks>
+            <Task Type="timer" />
+          </BackgroundTasks>
+        </Extension>
+      </Extensions>
     </Application>
   </Applications>
   <Capabilities>
-    <Capability Name="internetClient" />
+    <Capability Name="internetClientServer" />
     <m2:DeviceCapability Name="bluetooth.genericAttributeProfile">
       <m2:Device Id="any">
         <m2:Function Type="name:battery" />

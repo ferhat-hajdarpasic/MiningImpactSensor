@@ -26,7 +26,7 @@ namespace MiningImpactSensor
         /// </summary>
         public int Version { get; set; }
 
-        static Guid AccelerometerServiceUuid = Guid.Parse("f000aa10-0451-4000-b000-000000000000");
+        public static Guid AccelerometerServiceUuid = Guid.Parse("f000aa10-0451-4000-b000-000000000000");
         static Guid AccelerometerCharacteristicUuid = Guid.Parse("f000aa11-0451-4000-b000-000000000000");
         static Guid AccelerometerCharacteristicConfigUuid = Guid.Parse("f000aa12-0451-4000-b000-000000000000");
         static Guid AccelerometerCharacteristicPeriodUuid = Guid.Parse("f000aa13-0451-4000-b000-000000000000");

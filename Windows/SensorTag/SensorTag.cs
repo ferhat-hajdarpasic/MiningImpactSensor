@@ -38,7 +38,7 @@ namespace MiningImpactSensor
             this.version = 1;
             string name = deviceInfo.DeviceInformation.Name;
             Debug.WriteLine("Found sensor tag: [{0}]", name);
-            if (name == "CC2650 SensorTag" || name == "SensorTag 2.0")
+            if (name == "CC2650 SensorTag" || name == "SensorTag 2.0" || name == "SensorTag")
             {
                 this.version = 2;
                 this.deviceName = "CC2650";

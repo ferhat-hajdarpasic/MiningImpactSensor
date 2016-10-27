@@ -2,10 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Bluetooth.Rfcomm;
+using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Core;
@@ -54,6 +58,14 @@ namespace MiningImpactSensor.Pages
 
         bool finding;
 
+        async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            var values = (await sender.ReadValueAsync()).Value.ToArray();
+            var x = values[0];
+            var y = values[1];
+            var z = values[2];
+        }
+
         private async Task FindSensors()
         {
             try
@@ -68,8 +80,25 @@ namespace MiningImpactSensor.Pages
 
                 tiles.Clear();
 
-                // find a matching sensor
-                // todo: let user choose which one to play with.
+                foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
+                {
+                    Debug.WriteLine("Name=" + device.Name + ", Id=" + device.Id);
+                    string name = "" + device.Name;
+
+                    GattDeviceService accService = await GattDeviceService.FromIdAsync(device.Id);
+                    if (accService == null)
+                    {
+                        return;
+                    }
+                    var list = accService.GetCharacteristics(new Guid("f000aa81-0451-4000-b000-000000000000"));
+                    var accData = list.FirstOrDefault();
+                    accData.ValueChanged += accData_ValueChanged;
+                    await accData.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                    var accConfig = accService.GetCharacteristics(new Guid("f000aa82-0451-4000-b000-000000000000"))[0];
+                    await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
+                }
+                
+                
                 foreach (SensorTag tag in await SensorTag.FindAllDevices())
                 {
                     string icon = tag.Version == 1 ? "ms-appx:/Assets/SensorTag.png" : "ms-appx:/Assets/ti-sensortag-cc2650.png";
@@ -82,7 +111,7 @@ namespace MiningImpactSensor.Pages
 
                     tiles.Add(new TileModel() { Caption = name, Icon = new BitmapImage(new Uri(icon)), UserData = tag });
                 }
-
+                
                 if (tiles.Count == 0)
                 {
                     ShowHelp();
