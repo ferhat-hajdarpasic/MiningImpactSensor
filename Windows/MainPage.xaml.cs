@@ -2,6 +2,10 @@
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using System;
+using Windows.UI.Popups;
+using Windows.UI.Core;
+using Windows.ApplicationModel.Core;
+using System.Diagnostics;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -28,7 +32,6 @@ namespace MiningImpactSensor
         {
             base.OnNavigatedTo(e);
             SensorTagPanel.Show();
-            this.RegisterBackgroundTask();
         }
 
         protected override void OnNavigatedFrom(Windows.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -56,11 +59,45 @@ namespace MiningImpactSensor
                 taskBuilder.TaskEntryPoint = taskEntryPoint;
                 taskBuilder.SetTrigger(new TimeTrigger(15, false));
                 var registration = taskBuilder.Register();
+                Debug.WriteLine("Background task registration initiated for " + taskName + ".");
+                //registration.Completed -= regCompleted;
+                //registration.Completed -= regProgress;
+            } else
+            {
+                var messageDialog = new MessageDialog("Background registration not attempted.");
+                await messageDialog.ShowAsync();
             }
+
+        }
+
+        private async void regProgress(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        {
+            Debug.WriteLine("Background task registration in progress for " + taskName + ".");
+            CoreDispatcher coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            await coreDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+             {
+                 var messageDialog = new MessageDialog("Background registration is in progress.");
+                 await messageDialog.ShowAsync();
+             });
+        }
+
+        private async void regCompleted(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
+        {
+            Debug.WriteLine("Background task registration completed for " + taskName + ".");
+            CoreDispatcher coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            await coreDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                var messageDialog = new MessageDialog("Background registration is completed!");
+                await messageDialog.ShowAsync();
+            });
         }
 
         private const string taskName = "LiveTileBackgroundTask";
         private const string taskEntryPoint = "LiveTileBackgroundTask.LiveTileTask";
 
+        private void Page_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            this.RegisterBackgroundTask();
+        }
     }    
 }

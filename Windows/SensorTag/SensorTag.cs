@@ -1,4 +1,5 @@
-﻿using SensorTag;
+﻿using MiningImpactSensor.Pages;
+using SensorTag;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -58,6 +59,7 @@ namespace MiningImpactSensor
             GattDeviceService accService = await GattDeviceService.FromIdAsync(this.DeviceId);
             if (accService != null)
             {
+                DeviceList.DialogDebug("Found movement service!" + DeviceId);
                 var list = accService.GetCharacteristics(new Guid("f000aa81-0451-4000-b000-000000000000"));
                 var accData = list.FirstOrDefault();
                 accData.ValueChanged += accData_ValueChanged;
@@ -69,11 +71,12 @@ namespace MiningImpactSensor
                 var periodConfig = accService.GetCharacteristics(new Guid("f000aa83-0451-4000-b000-000000000000"))[0];
                 await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
 
+                DeviceList.DialogDebug("Connection all good." + DeviceId);
                 return true;
             }
             else
             {
-                Debug.WriteLine("Could not connect to device = " + DeviceId);
+                DeviceList.DialogDebug("Could not connect to device." + DeviceId);
                 return false;
             }
         }

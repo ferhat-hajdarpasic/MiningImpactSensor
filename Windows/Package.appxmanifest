@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="43906ChrisLovett.SensorTag" Publisher="CN=ferha" Version="1.2.0.21" />
+  <Identity Name="43906ChrisLovett.SensorTag" Publisher="CN=ferha" Version="1.2.0.24" />
   <Properties>
     <DisplayName>MiningImpactSensor</DisplayName>
     <PublisherDisplayName>Ferhat Hajdarpasic</PublisherDisplayName>
@@ -16,7 +16,7 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="MiningImpactSensor.App">
       <m2:VisualElements DisplayName="MiningImpactSensor" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="MiningImpactSensor" ForegroundText="light" BackgroundColor="#464646">
-        <m2:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
+        <m2:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square70x70Logo="Assets\Square70x70Logo.png">
         </m2:DefaultTile>
         <m2:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\BadgeLogo.png" />
         <m2:SplashScreen Image="Assets\SplashScreen.png" />
@@ -41,6 +41,7 @@
         <m2:Function Type="serviceId:f000aa30-0451-4000-b000-000000000000" />
         <m2:Function Type="serviceId:f000aa40-0451-4000-b000-000000000000" />
         <m2:Function Type="serviceId:f000aa50-0451-4000-b000-000000000000" />
+        <m2:Function Type="serviceId:f000aa80-0451-4000-b000-000000000000" />
         <m2:Function Type="serviceId:0000ffe0-0000-1000-8000-00805f9b34fb" />
         <m2:Function Type="serviceId:00001800-0000-1000-8000-00805f9b34fb" />
         <m2:Function Type="serviceId:00001801-0000-1000-8000-00805f9b34fb" />

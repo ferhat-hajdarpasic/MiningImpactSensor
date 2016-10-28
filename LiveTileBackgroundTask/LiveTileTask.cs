@@ -15,6 +15,7 @@ namespace LiveTileBackgroundTask
     {
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
+            Debug.WriteLine("Background task 'LiveTileTask' invoked.");
             // Get a deferral, to prevent the task from closing prematurely
             // while asynchronous code is still running.
             BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
@@ -72,6 +73,7 @@ namespace LiveTileBackgroundTask
 
                 // Create a new tile notification.
                 updater.Update(new TileNotification(tileXml));
+                Debug.WriteLine("Background task 'LiveTileTask' feed update: " + title + ".");
 
                 // Don't create more than 5 notifications.
                 if (itemCount++ > 5) break;

@@ -7,8 +7,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.UI.Core;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
@@ -88,9 +90,10 @@ namespace MiningImpactSensor.Pages
                 }
                 
                 */
+                DialogDebug("Looking for sensors");
                 foreach (SensorTag tag in await SensorTag.FindAllMotionSensors())
                 {
-                    Debug.WriteLine("Name=" + tag.DeviceName + ", Id=" + tag.DeviceId);
+                    DialogDebug("Name=" + tag.DeviceName + ", Id=" + tag.DeviceId);
                     string icon = "ms-appx:/Assets/ti-sensortag-cc2650.png";
                     
                     string name = Settings.Instance.FindName(tag.DeviceAddress);
@@ -115,6 +118,17 @@ namespace MiningImpactSensor.Pages
             }
 
             finding = false;
+        }
+
+        public static async void DialogDebug(string v)
+        {
+            Debug.WriteLine(v);
+            CoreDispatcher coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
+            await coreDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                var messageDialog = new MessageDialog(v);
+                await messageDialog.ShowAsync();
+            });
         }
 
         private void ShowHelp()
