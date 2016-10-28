@@ -122,11 +122,9 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MovementMeasurement.cs" />
     <Compile Include="Pages\AccelerometerPage.xaml.cs">
       <DependentUpon>AccelerometerPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\ButtonPage.xaml.cs">
-      <DependentUpon>ButtonPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\DeviceList.xaml.cs">
       <DependentUpon>DeviceList.xaml</DependentUpon>
@@ -134,10 +132,10 @@
     <Compile Include="Pages\DevicePage.xaml.cs">
       <DependentUpon>DevicePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PersistedDevice.cs" />
+    <Compile Include="PersistedDevices.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SensorTag\BleAccelerometerService.cs" />
-    <Compile Include="SensorTag\BleButtonService.cs" />
-    <Compile Include="SensorTag\BleGenericGattService.cs" />
+    <Compile Include="SensorTagDeviceIdParser.cs" />
     <Compile Include="SensorTag\SensorTag.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -187,10 +185,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\AccelerometerPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Pages\ButtonPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

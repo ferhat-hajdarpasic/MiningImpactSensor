@@ -1,28 +1,17 @@
 ﻿using MiningImpactSensor.Controls;
+using SensorTag;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
-using Windows.Devices.Bluetooth.Rfcomm;
-using Windows.Devices.Enumeration;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
-
-// The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace MiningImpactSensor.Pages
 {
@@ -57,7 +46,7 @@ namespace MiningImpactSensor.Pages
         }
 
         bool finding;
-
+        /*
         async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             var values = (await sender.ReadValueAsync()).Value.ToArray();
@@ -65,7 +54,7 @@ namespace MiningImpactSensor.Pages
             var y = values[1];
             var z = values[2];
         }
-
+        */
         private async Task FindSensors()
         {
             try
@@ -80,11 +69,11 @@ namespace MiningImpactSensor.Pages
 
                 tiles.Clear();
 
+                List<PersistedDevice> persitedDevices = await PersistedDevices.readFromFile();
+
+                /*
                 foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
                 {
-                    Debug.WriteLine("Name=" + device.Name + ", Id=" + device.Id);
-                    string name = "" + device.Name;
-
                     GattDeviceService accService = await GattDeviceService.FromIdAsync(device.Id);
                     if (accService == null)
                     {
@@ -98,15 +87,16 @@ namespace MiningImpactSensor.Pages
                     await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
                 }
                 
-                
-                foreach (SensorTag tag in await SensorTag.FindAllDevices())
+                */
+                foreach (SensorTag tag in await SensorTag.FindAllMotionSensors())
                 {
-                    string icon = tag.Version == 1 ? "ms-appx:/Assets/SensorTag.png" : "ms-appx:/Assets/ti-sensortag-cc2650.png";
+                    Debug.WriteLine("Name=" + tag.DeviceName + ", Id=" + tag.DeviceId);
+                    string icon = "ms-appx:/Assets/ti-sensortag-cc2650.png";
                     
                     string name = Settings.Instance.FindName(tag.DeviceAddress);
                     if (string.IsNullOrEmpty(name))
                     {
-                        name = tag.DeviceName;
+                        name = tag.DeviceAddress;
                     }
 
                     tiles.Add(new TileModel() { Caption = name, Icon = new BitmapImage(new Uri(icon)), UserData = tag });
@@ -149,7 +139,6 @@ namespace MiningImpactSensor.Pages
         {
             TileModel tile = e.ClickedItem as TileModel;
             SensorTag sensor = (SensorTag)tile.UserData;
-            SensorTag.SelectedSensor = sensor;
             Frame frame = Window.Current.Content as Frame;
             frame.Navigate(typeof(DevicePage), sensor);
         }

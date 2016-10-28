@@ -1,245 +1,108 @@
-﻿using System;
+﻿using SensorTag;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
 using Windows.UI.Core;
 
 namespace MiningImpactSensor
 {
-    /// <summary>
-    /// This class combines all of the GATT services provided by SensorTag into one helper class.
-    /// See http://processors.wiki.ti.com/index.php/CC2650_SensorTag_User's_Guide#IR_Temperature_Sensor
-    /// for details on GATT services.
-    /// </summary>
-    public class SensorTag : INotifyPropertyChanged
+    public class SensorTag
     {
         public static Guid IRTemperatureServiceUuid = Guid.Parse("f000aa00-0451-4000-b000-000000000000");
-        // Version 1 only
-        BleButtonService _buttonService;
-        BleAccelerometerService _accelService;
 
-        // variables
-        bool connected;
-        bool connecting;
-        bool disconnecting;
-        BleGattDeviceInfo deviceInfo;
-        int version;
-        string deviceName;
-        static SensorTag _selected;
-
-        public int Version { get { return this.version; } }
-
-        private SensorTag(BleGattDeviceInfo deviceInfo)
+        public SensorTag(DeviceInformation device)
         {
-            this.deviceInfo = deviceInfo;
-            this.version = 1;
-            string name = deviceInfo.DeviceInformation.Name;
+            string name = device.Name;
             Debug.WriteLine("Found sensor tag: [{0}]", name);
             if (name == "CC2650 SensorTag" || name == "SensorTag 2.0" || name == "SensorTag")
             {
-                this.version = 2;
-                this.deviceName = "CC2650";
+                DeviceName = "CC2650";
             }
             else
             {
-                this.deviceName = "CC2541";
+                DeviceName = "CC2541";
             }
+            this.DeviceId = device.Id;
+            this.DeviceAddress = SensorTagDeviceIdParser.parse(device);
         }
 
-        /// <summary>
-        /// Get or set the selected SensorTag instance.
-        /// </summary>
-        public static SensorTag SelectedSensor { get { return _selected; } set { _selected = value; } }
-
-
-        private SensorTag()
-        {
-            throw new InvalidOperationException();
-        }
-
-        public string DeviceAddress
-        {
-            get { return deviceInfo.Address.ToString("x"); }
-        }
-
-        public string DeviceName
-        {
-            get { return this.deviceName; }
-        }
-
-        public bool Connected { get { return connected; } }
+        public string DeviceId { get; set; }
+        public string DeviceAddress {get ; set;}
+        public string DeviceName { get; set; }
+        public bool Connected { get; set; }
         
-        /// <summary>
-        /// Find all SensorTag devices that are paired with this PC.
-        /// </summary>
-        /// <returns></returns>
-        public static async Task<IEnumerable<SensorTag>> FindAllDevices()
+        public static async Task<IEnumerable<SensorTag>> FindAllMotionSensors()
         {
             List<SensorTag> result = new List<SensorTag>();
-            foreach (var device in await BleGenericGattService.FindMatchingDevices(IRTemperatureServiceUuid))
+            foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
             {
-                string name = "" + device.DeviceInformation.Name;
+                string name = device.Name;
                 if (name.Contains("SensorTag") || name.Contains("Sensor Tag"))
                 {
                     result.Add(new SensorTag(device));
                 }
+                Debug.WriteLine("Name=" + device.Name + ", Id=" + device.Id);
             }
             return result;
         }
 
-
-        public BleAccelerometerService Accelerometer { get { return _accelService; } }
-        public BleButtonService Buttons { get { return _buttonService; } }
-
-        public event EventHandler<string> StatusChanged;
-
-        private void OnStatusChanged(string status)
+        public async Task<bool> ConnectMotionService()
         {
-            if (StatusChanged != null)
+            GattDeviceService accService = await GattDeviceService.FromIdAsync(this.DeviceId);
+            if (accService != null)
             {
-                StatusChanged(this, status);
+                var list = accService.GetCharacteristics(new Guid("f000aa81-0451-4000-b000-000000000000"));
+                var accData = list.FirstOrDefault();
+                accData.ValueChanged += accData_ValueChanged;
+                await accData.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+
+                var accConfig = accService.GetCharacteristics(new Guid("f000aa82-0451-4000-b000-000000000000"))[0];
+                await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
+
+                var periodConfig = accService.GetCharacteristics(new Guid("f000aa83-0451-4000-b000-000000000000"))[0];
+                await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
+
+                return true;
             }
-        }
-
-        /// <summary>
-        /// Connect or reconnect to the device.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<bool> ConnectAsync()
-        {
-            if (!connecting && !connected)
+            else
             {
-                disconnecting = false;
-
-                try
-                {
-                    OnStatusChanged("connecting...");
-
-                    // since all this code is async, user could quit in the middle, hence all the checks
-                    // on the "disconnecting" state.
-                    if (disconnecting) return false;
-
-                    // Version 1 only
-                    if (version == 1)
-                    {
-                        await ConnectButtonService();
-                        if (disconnecting) return false;
-                        await ConnectAccelerometerService();
-                        if (disconnecting) return false;
-                    }
-
-                    connected = true;
-                    OnStatusChanged("connected");
-                }
-                finally
-                {
-                    connecting = false;
-                }
-            }
-            return true;
-        }
-
-        public async void Disconnect()
-        {
-            disconnecting = true;
-            connected = false;
-
-            if (_buttonService != null)
-            {
-                using (_buttonService)
-                {
-                    _buttonService.Error -= OnServiceError;
-                    _buttonService.ConnectionChanged -= OnConnectionChanged;
-                    _buttonService = null;
-                }
-            }
-            if (_accelService != null)
-            {
-                using (_accelService)
-                {
-                    try
-                    {
-                        _accelService.Error -= OnServiceError;
-                        _accelService.ConnectionChanged -= OnConnectionChanged;
-                        await _accelService.StopReading();
-                    }
-                    catch { }
-                    _accelService = null;
-                }
-            }
-        }
-
-        private async Task<bool> ConnectButtonService()
-        {
-            if (_buttonService == null)
-            {
-                _buttonService = new BleButtonService() { Version = this.version };
-                _buttonService.Error += OnServiceError;
-
-                if (await _buttonService.ConnectAsync(deviceInfo.ContainerId))
-                {
-                    _buttonService.ConnectionChanged += OnConnectionChanged;
-                    return true;
-                }
-                _buttonService.Error -= OnServiceError;
-                _buttonService = null;
+                Debug.WriteLine("Could not connect to device = " + DeviceId);
                 return false;
             }
-            return true;
         }
 
-        private async Task<bool> ConnectAccelerometerService()
+        private async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            if (_accelService == null)
-            {
-                _accelService = new BleAccelerometerService() { Version = this.version };
-                _accelService.Error += OnServiceError;
+            double SCALE200G = (double)0.049;
+            var data = (await sender.ReadValueAsync()).Value.ToArray();
+            short x = (short)((data[7] << 8) | data[6]);
+            short y = (short)((data[9] << 8) | data[8]);
+            short z = (short)((data[11] << 8) | data[10]);
 
-                if (await _accelService.ConnectAsync(deviceInfo.ContainerId))
-                {
-                    _accelService.ConnectionChanged += OnConnectionChanged;
-                    return true;
-                }
-                _accelService.Error -= OnServiceError;
-                _accelService = null;
-                return false;
-            }
-            return true;
+            MovementDataChangedEventArgs measurement = new MovementDataChangedEventArgs();
+            measurement.X = (double)x * SCALE200G;
+            measurement.Y = (double)y * SCALE200G;
+            measurement.Z = (double)z * SCALE200G;
+            Debug.WriteLine("X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total);
+
+            MovementDataChanged(this, measurement);
         }
 
-        public event EventHandler<string> ServiceError;
-
-        private void OnServiceError(object sender, string message)
+        public class MovementDataChangedEventArgs : EventArgs
         {
-            if (ServiceError != null)
-            {
-                ServiceError(sender, message);
-            }
-
+            public double X { get; set; }
+            public double Y { get; set; }
+            public double Z { get; set; }
+            public double Total { get { return Math.Sqrt(X*X + Y*Y + Z*Z);} }
         }
 
-
-        public event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
-
-        void OnConnectionChanged(object sender, ConnectionChangedEventArgs e)
-        {
-            if (ConnectionChanged != null)
-            {
-                ConnectionChanged(sender, e);
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged(string name)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
-        }
+        public event EventHandler<MovementDataChangedEventArgs> MovementDataChanged;
     }
 }

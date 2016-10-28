@@ -39,7 +39,7 @@
                          Margin="10,6,10,0"  
                         />
 
-            <TextBlock Text="Accelerometer" FontSize="36" Grid.Column="1"
+            <TextBlock Name="AccelerometerTextBox" Text="Accelerometer" FontSize="36" Grid.Column="1"
                        TextWrapping="Wrap" Margin="10,10,10,0"/>
 
         </Grid>
