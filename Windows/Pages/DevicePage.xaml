@@ -29,8 +29,7 @@
         </Grid>
 
 
-        <ListView x:Name="SensorList"  Grid.Row="1" SelectionMode="None"
-                  IsItemClickEnabled="True" ItemClick="OnItemClick">
+        <ListView x:Name="SensorList"  Grid.Row="1" SelectionMode="None" IsItemClickEnabled="True">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapGrid Orientation="Horizontal"/>
