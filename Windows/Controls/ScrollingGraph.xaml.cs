@@ -136,8 +136,8 @@ namespace MiningImpactSensor.Controls
                 ConnectGraphs(previousLineGraph, this.activeLineGraph);
                 ConnectGraphs(previousShadowGraph, this.activeShadowLineGraph);
 
-                Debug.WriteLine("Adding new line graph at x={0}", Canvas.GetLeft(this.activeLineGraph));
-                Debug.WriteLine("Adding new shadow graph at x={0}", Canvas.GetLeft(this.activeShadowLineGraph));
+                App.Debug("Adding new line graph at x={0}", Canvas.GetLeft(this.activeLineGraph));
+                App.Debug("Adding new shadow graph at x={0}", Canvas.GetLeft(this.activeShadowLineGraph));
 
             }
             return this.activeLineGraph;
@@ -157,7 +157,7 @@ namespace MiningImpactSensor.Controls
 
         private void RemoveLineGraph(Path p)
         {
-            Debug.WriteLine("Remove line graph");
+            App.Debug("Remove line graph");
             this.lineGraphs.Remove(p);
             this.GraphCanvas.Children.Remove(p);
         }

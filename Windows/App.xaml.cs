@@ -1,5 +1,7 @@
-﻿using System;
+﻿using SensorTag;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -34,6 +36,21 @@ namespace MiningImpactSensor
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            EventListener verboseListener = new StorageFileEventListener("MyListenerVerbose");
+            EventListener informationListener = new StorageFileEventListener("MyListenerInformation");
+
+            verboseListener.EnableEvents(MetroEventSource.Log, EventLevel.Verbose);
+            informationListener.EnableEvents(MetroEventSource.Log, EventLevel.Informational);
+        }
+
+        public static async void Debug(string v)
+        {
+            MetroEventSource.Log.Debug(v);
+        }
+
+        public static async void Debug(string format, params object[] arguments)
+        {
+            MetroEventSource.Log.Debug(String.Format(format, arguments));
         }
 
         /// <summary>

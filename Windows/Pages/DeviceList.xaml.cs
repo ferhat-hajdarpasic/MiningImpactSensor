@@ -72,10 +72,10 @@ namespace MiningImpactSensor.Pages
                 tiles.Clear();
 
                 List<PersistedDevice> persitedDevices = await PersistedDevices.readFromFile();
-                DialogDebug("Looking for sensors");
+                App.Debug("Looking for sensors");
                 foreach (SensorTag sensor in await SensorTag.FindAllMotionSensors())
                 {
-                    DialogDebug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
+                    App.Debug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
                     string name = Settings.Instance.FindName(sensor.DeviceAddress);
                     if (string.IsNullOrEmpty(name))
                     {
@@ -120,17 +120,6 @@ namespace MiningImpactSensor.Pages
         private TileModel GetTile(string name)
         {
             return (from t in tiles where t.Caption == name select t).FirstOrDefault();
-        }
-
-        public static async void DialogDebug(string v)
-        {
-            Debug.WriteLine(v);
-            //CoreDispatcher coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-            //await coreDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            //{
-            //    var messageDialog = new MessageDialog(v);
-            //    await messageDialog.ShowAsync();
-            //});
         }
 
         private void ShowHelp()
