@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
 
         <Grid Background="{StaticResource PageTitleBackgroundColor}">
-            <TextBlock Text="SensorTag" FontSize="36" Margin="10" />
+            <TextBlock Text="Known And Nearby ShockPods" FontSize="36" Margin="10" />
         </Grid>
 
         <ListView x:Name="SensorList"  Grid.Row="1" SelectionMode="None"

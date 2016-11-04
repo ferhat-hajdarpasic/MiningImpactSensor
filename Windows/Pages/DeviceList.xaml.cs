@@ -72,39 +72,22 @@ namespace MiningImpactSensor.Pages
                 tiles.Clear();
 
                 List<PersistedDevice> persitedDevices = await PersistedDevices.readFromFile();
-
-                /*
-                foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
+                App.Debug("Looking for sensors");
+                foreach (SensorTag sensor in await SensorTag.FindAllMotionSensors())
                 {
-                    GattDeviceService accService = await GattDeviceService.FromIdAsync(device.Id);
-                    if (accService == null)
-                    {
-                        return;
-                    }
-                    var list = accService.GetCharacteristics(new Guid("f000aa81-0451-4000-b000-000000000000"));
-                    var accData = list.FirstOrDefault();
-                    accData.ValueChanged += accData_ValueChanged;
-                    await accData.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-                    var accConfig = accService.GetCharacteristics(new Guid("f000aa82-0451-4000-b000-000000000000"))[0];
-                    await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
-                }
-                
-                */
-                DialogDebug("Looking for sensors");
-                foreach (SensorTag tag in await SensorTag.FindAllMotionSensors())
-                {
-                    DialogDebug("Name=" + tag.DeviceName + ", Id=" + tag.DeviceId);
-                    string icon = "ms-appx:/Assets/ti-sensortag-cc2650.png";
-                    
-                    string name = Settings.Instance.FindName(tag.DeviceAddress);
+                    App.Debug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
+                    string name = Settings.Instance.FindName(sensor.DeviceAddress);
                     if (string.IsNullOrEmpty(name))
                     {
-                        name = tag.DeviceAddress;
+                        name = sensor.DeviceAddress;
                     }
 
-                    tiles.Add(new TileModel() { Caption = name, Icon = new BitmapImage(new Uri(icon)), UserData = tag });
+                    tiles.Add(new TileModel() { Caption = name, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")), UserData = sensor });
+                    sensor.MovementDataChanged += OnMovementMeasurementValueChanged;
+
+                    Boolean success = await sensor.ConnectMotionService();
                 }
-                
+
                 if (tiles.Count == 0)
                 {
                     ShowHelp();
@@ -120,15 +103,23 @@ namespace MiningImpactSensor.Pages
             finding = false;
         }
 
-        public static async void DialogDebug(string v)
+        private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs e)
         {
-            Debug.WriteLine(v);
-            CoreDispatcher coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
-            await coreDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            SensorTag sensor = (SensorTag)sender;
+            var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
             {
-                var messageDialog = new MessageDialog(v);
-                await messageDialog.ShowAsync();
-            });
+                string caption = Math.Round(e.X, 3) + "," + Math.Round(e.Y, 3) + "," + Math.Round(e.Z, 3);
+                var a = GetTile(sensor.DeviceAddress);
+                if (a != null)
+                {
+                    a.SensorValue = caption;
+                }
+            }));
+        }
+
+        private TileModel GetTile(string name)
+        {
+            return (from t in tiles where t.Caption == name select t).FirstOrDefault();
         }
 
         private void ShowHelp()

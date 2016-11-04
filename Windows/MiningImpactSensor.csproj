@@ -122,6 +122,7 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MetroEventSource.cs" />
     <Compile Include="MovementMeasurement.cs" />
     <Compile Include="Pages\AccelerometerPage.xaml.cs">
       <DependentUpon>AccelerometerPage.xaml</DependentUpon>
@@ -138,6 +139,7 @@
     <Compile Include="MovementRecord.cs" />
     <Compile Include="SensorTagDeviceIdParser.cs" />
     <Compile Include="SensorTag\SensorTag.cs" />
+    <Compile Include="StorageFileEventListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

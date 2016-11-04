@@ -6,6 +6,8 @@ using Windows.UI.Popups;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using System.Diagnostics;
+using SensorTag;
+using Windows.Foundation.Diagnostics;
 
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -17,6 +19,7 @@ namespace MiningImpactSensor
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        //private static readonly ILog log = LogManager.GetLogger(typeof(MainPage));
         public MainPage()
         {
             this.InitializeComponent();
@@ -59,9 +62,7 @@ namespace MiningImpactSensor
                 taskBuilder.TaskEntryPoint = taskEntryPoint;
                 taskBuilder.SetTrigger(new TimeTrigger(15, false));
                 var registration = taskBuilder.Register();
-                Debug.WriteLine("Background task registration initiated for " + taskName + ".");
-                //registration.Completed -= regCompleted;
-                //registration.Completed -= regProgress;
+                App.Debug("Background task registration initiated for " + taskName + ".");
             } else
             {
                 var messageDialog = new MessageDialog("Background registration not attempted.");
@@ -72,7 +73,7 @@ namespace MiningImpactSensor
 
         private async void regProgress(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            Debug.WriteLine("Background task registration in progress for " + taskName + ".");
+            App.Debug("Background task registration in progress for " + taskName + ".");
             CoreDispatcher coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
             await coreDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
              {
@@ -83,7 +84,7 @@ namespace MiningImpactSensor
 
         private async void regCompleted(BackgroundTaskRegistration sender, BackgroundTaskCompletedEventArgs args)
         {
-            Debug.WriteLine("Background task registration completed for " + taskName + ".");
+            App.Debug("Background task registration completed for " + taskName + ".");
             CoreDispatcher coreDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
             await coreDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {

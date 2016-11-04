@@ -21,7 +21,7 @@ namespace MiningImpactSensor
         public SensorTag(DeviceInformation device)
         {
             string name = device.Name;
-            Debug.WriteLine("Found sensor tag: [{0}]", name);
+            App.Debug("Found sensor tag: [{0}]", name);
             if (name == "CC2650 SensorTag" || name == "SensorTag 2.0" || name == "SensorTag")
             {
                 DeviceName = "CC2650";
@@ -49,7 +49,7 @@ namespace MiningImpactSensor
                 {
                     result.Add(new SensorTag(device));
                 }
-                Debug.WriteLine("Name=" + device.Name + ", Id=" + device.Id);
+                App.Debug("Name=" + device.Name + ", Id=" + device.Id);
             }
             return result;
         }
@@ -59,7 +59,7 @@ namespace MiningImpactSensor
             GattDeviceService accService = await GattDeviceService.FromIdAsync(this.DeviceId);
             if (accService != null)
             {
-                DeviceList.DialogDebug("Found movement service!" + DeviceId);
+                App.Debug("Found movement service!" + DeviceId);
                 var list = accService.GetCharacteristics(new Guid("f000aa81-0451-4000-b000-000000000000"));
                 var accData = list.FirstOrDefault();
                 accData.ValueChanged += accData_ValueChanged;
@@ -71,12 +71,12 @@ namespace MiningImpactSensor
                 var periodConfig = accService.GetCharacteristics(new Guid("f000aa83-0451-4000-b000-000000000000"))[0];
                 await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
 
-                DeviceList.DialogDebug("Connection all good." + DeviceId);
+                App.Debug("Connection all good." + DeviceId);
                 return true;
             }
             else
             {
-                DeviceList.DialogDebug("Could not connect to device." + DeviceId);
+                App.Debug("Could not connect to device." + DeviceId);
                 return false;
             }
         }
@@ -93,7 +93,7 @@ namespace MiningImpactSensor
             measurement.X = (double)x * SCALE200G;
             measurement.Y = (double)y * SCALE200G;
             measurement.Z = (double)z * SCALE200G;
-            Debug.WriteLine("X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total);
+            App.Debug("X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total);
 
             MovementDataChanged(this, measurement);
         }
