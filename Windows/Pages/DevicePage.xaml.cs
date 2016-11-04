@@ -1,9 +1,14 @@
 ﻿using MiningImpactSensor.Controls;
+using Newtonsoft.Json;
+using SensorTag;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
@@ -81,6 +86,26 @@ namespace MiningImpactSensor.Pages
                     a.SensorValue = caption;
                 }
             }));
+
+            Task.Run(() =>
+            {
+                MovementRecord record = new MovementRecord();
+                record.AssignedName = sensor.DeviceName;
+                record.DeviceAddress = sensor.DeviceAddress;
+                record.Time = DateTime.Now;
+                record.Value = new MovementMeasurement(e.X, e.Y, e.Z);
+
+                PostAsJsonAsync(record);
+            });
+        }
+
+        private async void PostAsJsonAsync(MovementRecord record)
+        {
+            var itemAsJson = JsonConvert.SerializeObject(record);
+            var content = new StringContent(itemAsJson);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            HttpClient _client = new HttpClient();
+            await _client.PostAsync("http://localhost:1337/records", content);
         }
 
         private TileModel GetTile(string name)
