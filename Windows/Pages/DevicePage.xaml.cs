@@ -75,11 +75,11 @@ namespace MiningImpactSensor.Pages
             return t.ToString("N2");
         }
 
-        private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs e)
+        private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs movementData)
         {
             var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
             {
-                string caption = Math.Round(e.X, 3) + "," + Math.Round(e.Y, 3) + "," + Math.Round(e.Z, 3);
+                string caption = Math.Round(movementData.X, 3) + "," + Math.Round(movementData.Y, 3) + "," + Math.Round(movementData.Z, 3);
                 var a = GetTile("Accelerometer");
                 if (a != null)
                 {
@@ -93,7 +93,7 @@ namespace MiningImpactSensor.Pages
                 record.AssignedName = sensor.DeviceName;
                 record.DeviceAddress = sensor.DeviceAddress;
                 record.Time = DateTime.Now;
-                record.Value = new MovementMeasurement(e.X, e.Y, e.Z);
+                record.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
 
                 PostAsJsonAsync(record);
             });
