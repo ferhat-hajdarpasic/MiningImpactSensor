@@ -48,15 +48,6 @@ namespace MiningImpactSensor.Pages
         }
 
         bool finding;
-        /*
-        async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
-        {
-            var values = (await sender.ReadValueAsync()).Value.ToArray();
-            var x = values[0];
-            var y = values[1];
-            var z = values[2];
-        }
-        */
         private async Task FindSensors()
         {
             try
