@@ -94,18 +94,20 @@ namespace MiningImpactSensor.Pages
             finding = false;
         }
 
-        private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs e)
+        private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs movementData)
         {
             SensorTag sensor = (SensorTag)sender;
             var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
             {
-                string caption = Math.Round(e.X, 3) + "," + Math.Round(e.Y, 3) + "," + Math.Round(e.Z, 3);
+                string caption = Math.Round(movementData.X, 3) + "," + Math.Round(movementData.Y, 3) + "," + Math.Round(movementData.Z, 3);
                 var a = GetTile(sensor.DeviceAddress);
                 if (a != null)
                 {
                     a.SensorValue = caption;
                 }
             }));
+
+            DevicePage.PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
         }
 
         private TileModel GetTile(string name)

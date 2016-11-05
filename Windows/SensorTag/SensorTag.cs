@@ -93,7 +93,7 @@ namespace MiningImpactSensor
             measurement.X = (double)x * SCALE200G;
             measurement.Y = (double)y * SCALE200G;
             measurement.Z = (double)z * SCALE200G;
-            App.Debug("X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total);
+            //App.Debug("X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total);
 
             MovementDataChanged(this, measurement);
         }

@@ -95,17 +95,53 @@ namespace MiningImpactSensor.Pages
                 record.Time = DateTime.Now;
                 record.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
 
-                PostAsJsonAsync(record);
+                PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
             });
         }
 
-        private async void PostAsJsonAsync(MovementRecord record)
+        public static async void PostAsJsonAsync(String deviceName, String deviceAddress, SensorTag.MovementDataChangedEventArgs movementData)
         {
-            var itemAsJson = JsonConvert.SerializeObject(record);
-            var content = new StringContent(itemAsJson);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            HttpClient _client = new HttpClient();
-            await _client.PostAsync("http://localhost:1337/records", content);
+            await Task.Run(async () =>
+            {
+                MovementRecord record = new MovementRecord();
+                record.AssignedName = deviceName;
+                record.DeviceAddress = deviceAddress;
+                record.Time = DateTime.Now;
+                record.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
+                var itemAsJson = JsonConvert.SerializeObject(record);
+                var content = new StringContent(itemAsJson);
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                HttpClient _client = new HttpClient();
+                HttpResponseMessage response = await _client.PostAsync("http://localhost:3000/records", content);
+                if(response.IsSuccessStatusCode)
+                {
+                    String json = await response.Content.ReadAsStringAsync();
+                    var customer1 = JsonConvert.DeserializeAnonymousType(json, new
+                    {
+                        type = true,
+                        data = new
+                        {
+                            __v = 0,
+                            DeviceAddress = "",
+                            AssignedName = "",
+                            Time = new DateTime(),
+                            _id = "",
+                            Value = new
+                            {
+                                X = 1.0,
+                                Y = 1.0,
+                                Z = -1.0
+                            }
+                        }
+                    });
+                    String id = customer1.data._id;
+                    App.Debug("id=" + id);
+                } else
+                {
+
+                }
+             });
+
         }
 
         private TileModel GetTile(string name)
