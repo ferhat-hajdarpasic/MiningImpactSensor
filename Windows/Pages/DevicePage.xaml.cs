@@ -89,12 +89,6 @@ namespace MiningImpactSensor.Pages
 
             Task.Run(() =>
             {
-                MovementRecord record = new MovementRecord();
-                record.AssignedName = sensor.DeviceName;
-                record.DeviceAddress = sensor.DeviceAddress;
-                record.Time = DateTime.Now;
-                record.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
-
                 PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
             });
         }
@@ -106,39 +100,42 @@ namespace MiningImpactSensor.Pages
                 MovementRecord record = new MovementRecord();
                 record.AssignedName = deviceName;
                 record.DeviceAddress = deviceAddress;
-                record.Time = DateTime.Now;
-                record.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
+                SingleRecord singleRecord = new SingleRecord();
+                singleRecord.Time = DateTime.Now;
+                singleRecord.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
+
+                record.Recording.Add(singleRecord);
                 var itemAsJson = JsonConvert.SerializeObject(record);
                 var content = new StringContent(itemAsJson);
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 HttpClient _client = new HttpClient();
-                HttpResponseMessage response = await _client.PostAsync("http://localhost:3000/records", content);
-                if(response.IsSuccessStatusCode)
+                try
                 {
-                    String json = await response.Content.ReadAsStringAsync();
-                    var customer1 = JsonConvert.DeserializeAnonymousType(json, new
+                    HttpResponseMessage response = await _client.PostAsync("http://localhost:3000/records", content);
+                    if (response.IsSuccessStatusCode)
                     {
-                        type = true,
-                        data = new
+                        String json = await response.Content.ReadAsStringAsync();
+                        var customer1 = JsonConvert.DeserializeAnonymousType(json, new
                         {
-                            __v = 0,
-                            DeviceAddress = "",
-                            AssignedName = "",
-                            Time = new DateTime(),
-                            _id = "",
-                            Value = new
+                            type = true,
+                            data = new
                             {
-                                X = 1.0,
-                                Y = 1.0,
-                                Z = -1.0
+                                __v = 0,
+                                DeviceAddress = "",
+                                AssignedName = "",
+                                _id = "",
                             }
-                        }
-                    });
-                    String id = customer1.data._id;
-                    App.Debug("id=" + id);
-                } else
-                {
+                        });
+                        String id = customer1.data._id;
+                        App.Debug("id=" + id);
+                    }
+                    else
+                    {
 
+                    }
+                } catch(Exception e)
+                {
+                    App.Debug("Exception while connecting to ShokpodApi server." + e.Message);
                 }
              });
 
