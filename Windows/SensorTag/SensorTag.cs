@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
+using Windows.Devices.Enumeration.Pnp;
 using Windows.UI.Core;
 
 namespace MiningImpactSensor
@@ -17,6 +18,11 @@ namespace MiningImpactSensor
     public class SensorTag
     {
         public static Guid IRTemperatureServiceUuid = Guid.Parse("f000aa00-0451-4000-b000-000000000000");
+        private PnpObjectWatcher watcher;
+        private GattCharacteristic characteristic;
+        GattDeviceService accService;
+        private const GattClientCharacteristicConfigurationDescriptorValue CHARACTERISTIC_NOTIFICATION_TYPE =
+            GattClientCharacteristicConfigurationDescriptorValue.Notify;
 
         public SensorTag(DeviceInformation device)
         {
@@ -32,13 +38,15 @@ namespace MiningImpactSensor
             }
             this.DeviceId = device.Id;
             this.DeviceAddress = SensorTagDeviceIdParser.parse(device);
+            //this.deviceContainerId = "{" + device.Properties["System.Devices.ContainerId"] + "}";
         }
 
         public string DeviceId { get; set; }
         public string DeviceAddress {get ; set;}
         public string DeviceName { get; set; }
         public bool Connected { get; set; }
-        
+        //public String deviceContainerId { get; set; }
+
         public static async Task<IEnumerable<SensorTag>> FindAllMotionSensors()
         {
             List<SensorTag> result = new List<SensorTag>();
@@ -51,19 +59,48 @@ namespace MiningImpactSensor
                 }
                 App.Debug("Name=" + device.Name + ", Id=" + device.Id);
             }
+
             return result;
+        }
+
+        private void StartDeviceConnectionWatcher()
+        {
+            watcher = PnpObject.CreateWatcher(PnpObjectType.DeviceContainer,
+                new string[] { "System.Devices.Connected" }, String.Empty);
+
+            watcher.Updated += DeviceConnection_Updated;
+            watcher.Start();
+        }
+
+        private async void DeviceConnection_Updated(PnpObjectWatcher sender, PnpObjectUpdate args)
+        {
+            var connectedProperty = args.Properties["System.Devices.Connected"];
+            bool isConnected = false;
+            Guid s = characteristic.Uuid;
+            if ((DeviceId == args.Id) && Boolean.TryParse(connectedProperty.ToString(), out isConnected) &&
+                isConnected)
+            {
+                var status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+                    CHARACTERISTIC_NOTIFICATION_TYPE);
+
+                if (status == GattCommunicationStatus.Success)
+                {
+                    watcher.Stop();
+                    watcher = null;
+                }
+            }
         }
 
         public async Task<bool> ConnectMotionService()
         {
-            GattDeviceService accService = await GattDeviceService.FromIdAsync(this.DeviceId);
+            accService = await GattDeviceService.FromIdAsync(this.DeviceId);
             if (accService != null)
             {
                 App.Debug("Found movement service!" + DeviceId);
                 var list = accService.GetCharacteristics(new Guid("f000aa81-0451-4000-b000-000000000000"));
-                var accData = list.FirstOrDefault();
-                accData.ValueChanged += accData_ValueChanged;
-                await accData.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                characteristic = list.FirstOrDefault();
+                characteristic.ValueChanged += accData_ValueChanged;
+                await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
 
                 var accConfig = accService.GetCharacteristics(new Guid("f000aa82-0451-4000-b000-000000000000"))[0];
                 await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
@@ -72,6 +109,8 @@ namespace MiningImpactSensor
                 await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
 
                 App.Debug("Connection all good." + DeviceId);
+
+                StartDeviceConnectionWatcher();
                 return true;
             }
             else
@@ -93,7 +132,8 @@ namespace MiningImpactSensor
             measurement.X = (double)x * SCALE200G;
             measurement.Y = (double)y * SCALE200G;
             measurement.Z = (double)z * SCALE200G;
-            //App.Debug("X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total);
+            //String logMsg = "X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total;
+            //App.Debug(logMsg);
 
             MovementDataChanged(this, measurement);
         }

@@ -10,6 +10,11 @@ namespace SensorTag
     {
         public DateTime Time { get; set; }
         public MovementMeasurement Value { get; set; }
+        public SingleRecord()
+        {
+            this.Value = new MovementMeasurement(0, 0, 0);
+            this.Time = DateTime.Now;
+        }
     }
     public class MovementRecord
     {

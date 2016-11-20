@@ -137,6 +137,7 @@
     <Compile Include="PersistedDevices.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MovementRecord.cs" />
+    <Compile Include="RecordingQueue.cs" />
     <Compile Include="SensorTagDeviceIdParser.cs" />
     <Compile Include="SensorTag\SensorTag.cs" />
     <Compile Include="StorageFileEventListener.cs" />

@@ -87,58 +87,20 @@ namespace MiningImpactSensor.Pages
                 }
             }));
 
-            Task.Run(() =>
-            {
-                PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
-            });
+            PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
         }
 
-        public static async void PostAsJsonAsync(String deviceName, String deviceAddress, SensorTag.MovementDataChangedEventArgs movementData)
+        public static void PostAsJsonAsync(String deviceName, String deviceAddress, SensorTag.MovementDataChangedEventArgs movementData)
         {
-            await Task.Run(async () =>
-            {
-                MovementRecord record = new MovementRecord();
-                record.AssignedName = deviceName;
-                record.DeviceAddress = deviceAddress;
-                SingleRecord singleRecord = new SingleRecord();
-                singleRecord.Time = DateTime.Now;
-                singleRecord.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
+            MovementRecord record = new MovementRecord();
+            record.AssignedName = deviceName;
+            record.DeviceAddress = deviceAddress;
+            SingleRecord singleRecord = new SingleRecord();
+            singleRecord.Time = DateTime.Now;
+            singleRecord.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
+            record.Recording.Add(singleRecord);
 
-                record.Recording.Add(singleRecord);
-                var itemAsJson = JsonConvert.SerializeObject(record);
-                var content = new StringContent(itemAsJson);
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                HttpClient _client = new HttpClient();
-                try
-                {
-                    HttpResponseMessage response = await _client.PostAsync("http://localhost:3000/records", content);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        String json = await response.Content.ReadAsStringAsync();
-                        var customer1 = JsonConvert.DeserializeAnonymousType(json, new
-                        {
-                            type = true,
-                            data = new
-                            {
-                                __v = 0,
-                                DeviceAddress = "",
-                                AssignedName = "",
-                                _id = "",
-                            }
-                        });
-                        String id = customer1.data._id;
-                        App.Debug("id=" + id);
-                    }
-                    else
-                    {
-
-                    }
-                } catch(Exception e)
-                {
-                    App.Debug("Exception while connecting to ShokpodApi server." + e.Message);
-                }
-             });
-
+            RecordingQueue.Enqueue(record);
         }
 
         private TileModel GetTile(string name)
