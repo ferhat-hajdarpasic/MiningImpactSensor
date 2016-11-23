@@ -38,24 +38,31 @@ namespace MiningImpactSensor
             }
             this.DeviceId = device.Id;
             this.DeviceAddress = SensorTagDeviceIdParser.parse(device);
-            //this.deviceContainerId = "{" + device.Properties["System.Devices.ContainerId"] + "}";
+            this.AssignedToName = DeviceAddress;
         }
 
         public string DeviceId { get; set; }
         public string DeviceAddress {get ; set;}
         public string DeviceName { get; set; }
+        public string AssignedToName { get; set; }
         public bool Connected { get; set; }
-        //public String deviceContainerId { get; set; }
+        public DateTime DateTimeConnected  { get; set; }
+    //public String deviceContainerId { get; set; }
 
-        public static async Task<IEnumerable<SensorTag>> FindAllMotionSensors()
+    public static async Task<List<SensorTag>> FindAllMotionSensors()
         {
+            List<PersistedDevice> persistedDevices = await PersistedDevices.readFromFile();
+
             List<SensorTag> result = new List<SensorTag>();
             foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
             {
                 string name = device.Name;
                 if (name.Contains("SensorTag") || name.Contains("Sensor Tag"))
                 {
-                    result.Add(new SensorTag(device));
+                    SensorTag sensor = new SensorTag(device);
+                    sensor.AssignedToName = await PersistedDevices.getAssignedToName(sensor.DeviceAddress);
+                    sensor.Connected = await PersistedDevices.getConnected(sensor.DeviceAddress);
+                    result.Add(sensor);
                 }
                 App.Debug("Name=" + device.Name + ", Id=" + device.Id);
             }
@@ -110,6 +117,10 @@ namespace MiningImpactSensor
 
                 App.Debug("Connection all good." + DeviceId);
 
+                DateTimeConnected = DateTime.Now;
+                this.Connected = true;
+                PersistedDevices.saveDevice(this);
+
                 StartDeviceConnectionWatcher();
                 return true;
             }
@@ -129,11 +140,13 @@ namespace MiningImpactSensor
             short z = (short)((data[11] << 8) | data[10]);
 
             MovementDataChangedEventArgs measurement = new MovementDataChangedEventArgs();
-            measurement.X = (double)x * SCALE200G;
-            measurement.Y = (double)y * SCALE200G;
-            measurement.Z = (double)z * SCALE200G;
+            measurement.X = (double)(x * SCALE200G)/8;
+            measurement.Y = (double)(y * SCALE200G)/8;
+            measurement.Z = (double)(z * SCALE200G)/8;
             //String logMsg = "X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total;
-            //App.Debug(logMsg);
+            App.Debug("x="+ Convert.ToString(data[7], 2).PadLeft(8,'0') + Convert.ToString(data[6], 2).PadLeft(8, '0') +
+            ", y=" + Convert.ToString(data[9], 2).PadLeft(8, '0') + Convert.ToString(data[8], 2).PadLeft(8, '0') +
+            ", z=" + Convert.ToString(data[11], 2).PadLeft(8, '0') + Convert.ToString(data[10], 2).PadLeft(8, '0'));
 
             MovementDataChanged(this, measurement);
         }

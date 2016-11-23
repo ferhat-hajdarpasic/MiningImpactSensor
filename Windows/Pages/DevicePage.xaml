@@ -7,13 +7,13 @@
     xmlns:c="using:MiningImpactSensor.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d" Loaded="Page_Loaded">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto" MinHeight="83"/>
         </Grid.RowDefinitions>
 
         <Grid x:Name="TitleGrid" Background="{StaticResource PageTitleBackgroundColor}">
@@ -22,14 +22,19 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
+            <StackPanel Orientation="Horizontal">
             <Button x:Name="backButton" Click="OnGoBack"
                         Style="{StaticResource BackButtonStyle}"
-                         Margin="10,6,10,0"  
+                         Margin="10,6,10,0" HorizontalAlignment="Center" VerticalAlignment="Center"  
                         />
+            <TextBox x:Name="AssignedToTextBox" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Arnold Swartzennegger" VerticalAlignment="Center" Background="{x:Null}" Width="306" FontSize="24" LostFocus="AssignedToTextBox_LostFocus" />
+                <Image x:Name="image" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Source="ms-appx:///Assets/shokpod-icon.png"/>
+                <TextBox x:Name="LoggedOnTimeTextBox" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Logged on time: 10h 30m" VerticalAlignment="Center" Background="{x:Null}" Margin="20,0,0,0" IsReadOnly="True"/>
+            </StackPanel>
         </Grid>
 
 
-        <ListView x:Name="SensorList"  Grid.Row="1" SelectionMode="None" IsItemClickEnabled="True">
+        <ListView x:Name="SensorList"  Grid.Row="1" SelectionMode="None" IsItemClickEnabled="True" Height="665" VerticalAlignment="Top" Grid.RowSpan="2" HorizontalAlignment="Center">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapGrid Orientation="Horizontal"/>
@@ -41,9 +46,11 @@
                                    />
                 </DataTemplate>
             </ListView.ItemTemplate>
+            <Button x:Name="button1" Content="Button" Height="100" Width="100"/>
         </ListView>
 
         <TextBlock x:Name="ErrorMessage" Text="" FontSize="24" Margin="10" Grid.Row="2" TextWrapping="Wrap" Foreground="Salmon"/>
+        <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Stretch" Width="1352" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36"/>
 
     </Grid>
 </Page>

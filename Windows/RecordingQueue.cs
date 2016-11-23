@@ -22,7 +22,7 @@ namespace SensorTag
             List<MovementRecord> recordsToSend = getRecordsToSend();
             App.Debug("Found " + recordsToSend.Count + " records to send.");
             await sendRecords(recordsToSend);
-        }, TimeSpan.FromSeconds(30));
+        }, TimeSpan.FromSeconds(5));
 
         public static void Enqueue(MovementRecord record)
         {

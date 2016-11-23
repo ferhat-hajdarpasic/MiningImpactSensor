@@ -19,6 +19,7 @@ namespace MiningImpactSensor.Pages
 {
     public sealed partial class DevicePage : Page
     {
+        private static string CURRENT_IMPACT = "HABA";
         DispatcherTimer _timer;
         SensorTag sensor;
         bool registeredConnectionEvents;
@@ -44,7 +45,7 @@ namespace MiningImpactSensor.Pages
 
             if(success)
             {
-                AddTile(new TileModel() { Caption = "Accelerometer", Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")) });
+                AddTile(new TileModel() { Caption = CURRENT_IMPACT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")) });
             }
 
             base.OnNavigatedTo(e);
@@ -80,11 +81,12 @@ namespace MiningImpactSensor.Pages
             var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
             {
                 string caption = Math.Round(movementData.X, 3) + "," + Math.Round(movementData.Y, 3) + "," + Math.Round(movementData.Z, 3);
-                var a = GetTile("Accelerometer");
+                var a = GetTile(CURRENT_IMPACT);
                 if (a != null)
                 {
                     a.SensorValue = caption;
                 }
+                updateLoggedOnTime();
             }));
 
             PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
@@ -179,6 +181,30 @@ namespace MiningImpactSensor.Pages
         private void OnGoBack(object sender, RoutedEventArgs e)
         {
             Frame.GoBack();
+        }
+
+        private void AssignedToTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (this.sensor.AssignedToName != this.AssignedToTextBox.Text)
+            {
+                this.sensor.AssignedToName = this.AssignedToTextBox.Text;
+                PersistedDevices.saveDevice(this.sensor);
+            }
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.AssignedToTextBox.Text = sensor.AssignedToName;
+            updateLoggedOnTime();
+        }
+
+        private void updateLoggedOnTime()
+        {
+            TimeSpan ts = sensor.DateTimeConnected - DateTime.Now;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
+                ts.Hours, ts.Minutes, ts.Seconds);
+
+            this.LoggedOnTimeTextBox.Text = "Logged on time: " + elapsedTime;
         }
     }
 }

@@ -62,9 +62,9 @@ namespace MiningImpactSensor.Pages
 
                 tiles.Clear();
 
-                List<PersistedDevice> persitedDevices = await PersistedDevices.readFromFile();
                 App.Debug("Looking for sensors");
-                foreach (SensorTag sensor in await SensorTag.FindAllMotionSensors())
+                List<SensorTag> pairedSensors = await SensorTag.FindAllMotionSensors();
+                foreach (SensorTag sensor in pairedSensors)
                 {
                     App.Debug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
                     string name = Settings.Instance.FindName(sensor.DeviceAddress);
@@ -76,7 +76,10 @@ namespace MiningImpactSensor.Pages
                     tiles.Add(new TileModel() { Caption = name, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")), UserData = sensor });
                     sensor.MovementDataChanged += OnMovementMeasurementValueChanged;
 
-                    Boolean success = await sensor.ConnectMotionService();
+                    if (sensor.Connected)
+                    {
+                        Boolean success = await sensor.ConnectMotionService();
+                    }
                 }
 
                 if (tiles.Count == 0)

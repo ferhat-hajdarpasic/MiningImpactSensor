@@ -8,7 +8,8 @@ namespace SensorTag
 {
     class PersistedDevice
     {
-        public String DeviceId { get; set; }
+        public String DeviceAddress { get; set; }
+        public String DeviceName { get; set; }
         public String AssignedToName { get; set; }
         public Boolean Selected { get; set; }
     }

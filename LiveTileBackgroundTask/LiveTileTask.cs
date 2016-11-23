@@ -62,6 +62,7 @@ namespace LiveTileBackgroundTask
             // Keep track of the number feed items that get tile notifications.
             int itemCount = 0;
 
+            if (feed == null) return;
             // Create a tile notification for each feed item.
             foreach (var item in feed.Items)
             {
