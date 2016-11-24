@@ -358,22 +358,22 @@
     <Language Code="zu-za" InMinimumRequirementSet="true" />
   </SupportedLocales>
   <ProductReservedInfo>
-    <MainPackageIdentityName>43906ChrisLovett.SensorTag</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod</MainPackageIdentityName>
     <ReservedNames>
       <ReservedName>MiningImpactSensor</ReservedName>
     </ReservedNames>
   </ProductReservedInfo>
   <AccountPackageIdentityNames>
-    <MainPackageIdentityName>43906ChrisLovett.BLEWifiHub</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.FoscamExplorer</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.FunChores</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.HollyCompanion</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.MagicLEDLights</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.PittsburghPhoneDemo</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.SecurePasswordVault</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.SeismographTablet</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.Sensay</MainPackageIdentityName>
-    <MainPackageIdentityName>43906ChrisLovett.TimesTablesSpeedTest</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.BLEWifiHub</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.FoscamExplorer</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.FunChores</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.HollyCompanion</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.MagicLEDLights</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.PittsburghPhoneDemo</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.SecurePasswordVault</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.SeismographTablet</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.Sensay</MainPackageIdentityName>
+    <MainPackageIdentityName>WhiteSpider.Shokpod.TimesTablesSpeedTest</MainPackageIdentityName>
   </AccountPackageIdentityNames>
   <PackageInfoList LandingUrl="https://dev.windows.com/dashboard/Application?appId=9NBLGGH0MQ6H">
     <PackageInfo>
