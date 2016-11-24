@@ -79,22 +79,13 @@ namespace MiningImpactSensor
             watcher.Start();
         }
 
-        private async void DeviceConnection_Updated(PnpObjectWatcher sender, PnpObjectUpdate args)
+        private async void DeviceConnection_Updated(PnpObjectWatcher watcher, PnpObjectUpdate args)
         {
-            var connectedProperty = args.Properties["System.Devices.Connected"];
-            bool isConnected = false;
-            Guid s = characteristic.Uuid;
-            if ((DeviceId == args.Id) && Boolean.TryParse(connectedProperty.ToString(), out isConnected) &&
-                isConnected)
+            bool isConnected = (bool)args.Properties["System.Devices.Connected"];
+            if (isConnected)
             {
-                var status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
-                    CHARACTERISTIC_NOTIFICATION_TYPE);
-
-                if (status == GattCommunicationStatus.Success)
-                {
-                    watcher.Stop();
-                    watcher = null;
-                }
+                watcher.Stop();
+                watcher = null;
             }
         }
 
@@ -149,6 +140,15 @@ namespace MiningImpactSensor
             ", z=" + Convert.ToString(data[11], 2).PadLeft(8, '0') + Convert.ToString(data[10], 2).PadLeft(8, '0'));
 
             MovementDataChanged(this, measurement);
+        }
+
+        internal async void Disconnect()
+        {
+            await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+            accService.Dispose();
+            accService = null;
+            characteristic = null;
+            GC.Collect();
         }
 
         public class MovementDataChangedEventArgs : EventArgs

@@ -19,10 +19,7 @@ namespace MiningImpactSensor.Pages
 {
     public sealed partial class DevicePage : Page
     {
-        private static string CURRENT_IMPACT = "HABA";
-        DispatcherTimer _timer;
-        SensorTag sensor;
-        bool registeredConnectionEvents;
+        private static string CURRENT_IMPACT = "Current Impact";
         ObservableCollection<TileModel> tiles = new ObservableCollection<TileModel>();
 
         public DevicePage()
@@ -35,13 +32,13 @@ namespace MiningImpactSensor.Pages
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            sensor = e.Parameter as SensorTag;
+            ((App)Application.Current).SensorTag = e.Parameter as SensorTag;
 
             SensorList.ItemsSource = tiles;
 
-            sensor.MovementDataChanged += OnMovementMeasurementValueChanged;
+            ((App)Application.Current).SensorTag.MovementDataChanged += OnMovementMeasurementValueChanged;
 
-            Boolean success = await sensor.ConnectMotionService();
+            Boolean success = await ((App)Application.Current).SensorTag.ConnectMotionService();
 
             if(success)
             {
@@ -81,22 +78,28 @@ namespace MiningImpactSensor.Pages
             var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
             {
                 string caption = Math.Round(movementData.X, 3) + "," + Math.Round(movementData.Y, 3) + "," + Math.Round(movementData.Z, 3);
-                var a = GetTile(CURRENT_IMPACT);
-                if (a != null)
-                {
-                    a.SensorValue = caption;
-                }
+                setCurrentImpct(caption);
                 updateLoggedOnTime();
             }));
 
-            PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
+            PostAsJsonAsync(movementData);
         }
 
-        public static void PostAsJsonAsync(String deviceName, String deviceAddress, SensorTag.MovementDataChangedEventArgs movementData)
+        private void setCurrentImpct(string caption)
         {
+            var a = GetTile(CURRENT_IMPACT);
+            if (a != null)
+            {
+                a.SensorValue = caption;
+            }
+        }
+
+        public static void PostAsJsonAsync(SensorTag.MovementDataChangedEventArgs movementData)
+        {
+            SensorTag sensor = ((App)Application.Current).SensorTag;
             MovementRecord record = new MovementRecord();
-            record.AssignedName = deviceName;
-            record.DeviceAddress = deviceAddress;
+            record.AssignedName = sensor.DeviceName;
+            record.DeviceAddress = sensor.DeviceAddress;
             SingleRecord singleRecord = new SingleRecord();
             singleRecord.Time = DateTime.Now;
             singleRecord.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
@@ -128,7 +131,7 @@ namespace MiningImpactSensor.Pages
         /// </summary>
         /// <param name="e">Event data that describes how this page was reached.  The Parameter
         /// property is typically used to configure the page.</param>
-        public async void Show()
+        public void Show()
         {
         }
 
@@ -156,7 +159,6 @@ namespace MiningImpactSensor.Pages
             switch (model.Caption)
             {
                 case "Accelerometer":
-                    frame.Navigate(typeof(AccelerometerPage));
                     break;
             }
         }
@@ -185,26 +187,31 @@ namespace MiningImpactSensor.Pages
 
         private void AssignedToTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (this.sensor.AssignedToName != this.AssignedToTextBox.Text)
-            {
-                this.sensor.AssignedToName = this.AssignedToTextBox.Text;
-                PersistedDevices.saveDevice(this.sensor);
-            }
+            App.SetSensorTagName(this.AssignedToTextBox.Text);
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            this.AssignedToTextBox.Text = sensor.AssignedToName;
+            this.AssignedToTextBox.Text = App.getSelectedSensorTag().AssignedToName;
             updateLoggedOnTime();
         }
 
         private void updateLoggedOnTime()
         {
-            TimeSpan ts = sensor.DateTimeConnected - DateTime.Now;
+            TimeSpan ts = App.getSelectedSensorTag().DateTimeConnected - DateTime.Now;
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
                 ts.Hours, ts.Minutes, ts.Seconds);
 
             this.LoggedOnTimeTextBox.Text = "Logged on time: " + elapsedTime;
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)Application.Current).SensorTag.Connected = false;
+            PersistedDevices.saveDevice(((App)Application.Current).SensorTag);
+            ((App)Application.Current).SensorTag.Disconnect();
+            setCurrentImpct("");
+            Frame.GoBack();
         }
     }
 }

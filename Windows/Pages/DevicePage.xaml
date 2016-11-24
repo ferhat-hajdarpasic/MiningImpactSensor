@@ -50,7 +50,7 @@
         </ListView>
 
         <TextBlock x:Name="ErrorMessage" Text="" FontSize="24" Margin="10" Grid.Row="2" TextWrapping="Wrap" Foreground="Salmon"/>
-        <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Stretch" Width="1352" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36"/>
+        <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Stretch" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36" Click="button_Click"/>
 
     </Grid>
 </Page>

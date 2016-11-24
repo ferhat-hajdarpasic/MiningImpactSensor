@@ -33,13 +33,13 @@ namespace MiningImpactSensor.Pages
         {
             if (args.VirtualKey == Windows.System.VirtualKey.F5)
             {
-                await this.FindSensors();
+                await this.Scan();
             }
         }
 
         public async void Show()
         {
-            await this.FindSensors();
+            await this.Scan();
         }
 
         public void Hide()
@@ -48,7 +48,7 @@ namespace MiningImpactSensor.Pages
         }
 
         bool finding;
-        private async Task FindSensors()
+        private async Task Scan()
         {
             try
             {
@@ -67,17 +67,13 @@ namespace MiningImpactSensor.Pages
                 foreach (SensorTag sensor in pairedSensors)
                 {
                     App.Debug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
-                    string name = Settings.Instance.FindName(sensor.DeviceAddress);
-                    if (string.IsNullOrEmpty(name))
-                    {
-                        name = sensor.DeviceAddress;
-                    }
-
-                    tiles.Add(new TileModel() { Caption = name, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")), UserData = sensor });
+                    
+                    tiles.Add(new TileModel() { Caption = sensor.AssignedToName, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")), UserData = sensor });
                     sensor.MovementDataChanged += OnMovementMeasurementValueChanged;
 
                     if (sensor.Connected)
                     {
+                        App.SetSelectedSensorTag(sensor);
                         Boolean success = await sensor.ConnectMotionService();
                     }
                 }
@@ -103,14 +99,14 @@ namespace MiningImpactSensor.Pages
             var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
             {
                 string caption = Math.Round(movementData.X, 3) + "," + Math.Round(movementData.Y, 3) + "," + Math.Round(movementData.Z, 3);
-                var a = GetTile(sensor.DeviceAddress);
+                var a = GetTile(sensor.AssignedToName);
                 if (a != null)
                 {
                     a.SensorValue = caption;
                 }
             }));
 
-            DevicePage.PostAsJsonAsync(sensor.DeviceName, sensor.DeviceAddress, movementData);
+            DevicePage.PostAsJsonAsync(movementData);
         }
 
         private TileModel GetTile(string name)
@@ -147,8 +143,13 @@ namespace MiningImpactSensor.Pages
         private async void OnRefresh(object sender, RoutedEventArgs e)
         {
             RefreshButton.IsEnabled = false;
-            await this.FindSensors();
+            await this.Scan();
             RefreshButton.IsEnabled = true;
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            Scan();
         }
     }
 }

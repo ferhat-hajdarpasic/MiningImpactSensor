@@ -69,6 +69,6 @@
                 </InlineUIContainer>
             </Paragraph>
         </RichTextBlock>
-        <Button x:Name="button" Content="SCAN" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Stretch" Width="1352" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="7" FontSize="36"/>
+        <Button x:Name="button" Content="SCAN" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Stretch" Width="1352" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="7" FontSize="36" Click="button_Click"/>
     </Grid>
 </UserControl>

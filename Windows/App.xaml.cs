@@ -43,12 +43,12 @@ namespace MiningImpactSensor
             informationListener.EnableEvents(MetroEventSource.Log, EventLevel.Informational);
         }
 
-        public static async void Debug(string v)
+        public static void Debug(string v)
         {
             MetroEventSource.Log.Debug(v);
         }
 
-        public static async void Debug(string format, params object[] arguments)
+        public static void Debug(string format, params object[] arguments)
         {
             MetroEventSource.Log.Debug(String.Format(format, arguments));
         }
@@ -62,12 +62,22 @@ namespace MiningImpactSensor
             set { _sensor = value; }
         }
 
+        public static void SetSelectedSensorTag(SensorTag sensor)
+        {
+            ((App)Application.Current).SensorTag = sensor;
+        }
+
+        public static SensorTag getSelectedSensorTag()
+        {
+            return ((App)Application.Current).SensorTag;
+        }
+
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected async override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             Frame rootFrame = Window.Current.Content as Frame;
 
@@ -124,6 +134,15 @@ namespace MiningImpactSensor
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
+        }
+
+        public static void SetSensorTagName(string text)
+        {
+            if (App.getSelectedSensorTag().AssignedToName != text)
+            {
+                App.getSelectedSensorTag().AssignedToName = text;
+                PersistedDevices.saveDevice(App.getSelectedSensorTag());
+            }
         }
     }
 }
