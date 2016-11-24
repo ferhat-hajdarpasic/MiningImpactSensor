@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
@@ -13,6 +16,7 @@ namespace LiveTileBackgroundTask
 {
     public sealed class LiveTileTask : IBackgroundTask
     {
+        private static HttpClient httpClient = new HttpClient();
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
             Debug.WriteLine("Background task 'LiveTileTask' invoked.");
@@ -20,65 +24,63 @@ namespace LiveTileBackgroundTask
             // while asynchronous code is still running.
             BackgroundTaskDeferral deferral = taskInstance.GetDeferral();
 
-            // Download the feed.
-            var feed = await GetMSDNBlogFeed();
+            try
+            {
+                HttpResponseMessage response = await httpClient.GetAsync("http://localhost:8080/records/20/seconds");
+                int y = 99;
+                if (response.IsSuccessStatusCode)
+                {
+                    String json = await response.Content.ReadAsStringAsync();
+                    List<Dictionary<string, object>> list = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(json);
+                    double maximumImpact = 0;
+                    foreach(Dictionary<string, object> o in list)
+                    {
+                        String deviceAddress = (string)o["DeviceAddress"];
+                        JArray records = (JArray)o["h"];
+                        foreach(JObject jObject in records)
+                        {
+                            JObject value = (JObject)jObject["Value"];
+                            float X = (float)value["X"];
+                            float Y = (float)value["Y"];
+                            float Z = (float)value["Z"];
 
-            // Update the live tile with the feed items.
-            UpdateTile(feed);
+                            double amplitude = Math.Sqrt(X * X + Y * Y + Z * Z);
+                            if(amplitude > maximumImpact)
+                            {
+                                maximumImpact = amplitude;
+                            }
+                        }
+                    }
+                    UpdateTile(maximumImpact);
+                }
+                else
+                {
+                    Debug.WriteLine("HTTP call to local server failed." + response.ReasonPhrase);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
 
             // Inform the system that the task is finished.
             deferral.Complete();
         }
 
-        private static async Task<SyndicationFeed> GetMSDNBlogFeed()
+        private static async void UpdateTile(double maximumImpact)
         {
-            SyndicationFeed feed = null;
-
-            try
-            {
-                // Create a syndication client that downloads the feed.  
-                SyndicationClient client = new SyndicationClient();
-                client.BypassCacheOnRetrieve = true;
-                client.SetRequestHeader(customHeaderName, customHeaderValue);
-
-                // Download the feed.
-                feed = await client.RetrieveFeedAsync(new Uri(feedUrl));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-
-            return feed;
-        }
-
-        private static void UpdateTile(SyndicationFeed feed)
-        {
-            // Create a tile update manager for the specified syndication feed.
             var updater = TileUpdateManager.CreateTileUpdaterForApplication();
             updater.EnableNotificationQueue(true);
             updater.Clear();
+            XmlDocument tileXml = TileUpdateManager.GetTemplateContent(TileTemplateType.TileWide310x150SmallImageAndText03);
 
-            // Keep track of the number feed items that get tile notifications.
-            int itemCount = 0;
+            string titleText = "" + maximumImpact + "G";
+            tileXml.GetElementsByTagName(textElementName)[0].InnerText = titleText;
+           // ((XmlElement)tileXml.GetElementsByTagName("image")[0]).SetAttribute("src", "ms-appx://Assets/shokpod-icon.png");
 
-            if (feed == null) return;
-            // Create a tile notification for each feed item.
-            foreach (var item in feed.Items)
-            {
-                XmlDocument tileXml = TileUpdateManager.GetTemplateContent(TileTemplateType.TileWideText03);
-
-                var title = item.Title;
-                string titleText = title.Text == null ? String.Empty : title.Text;
-                tileXml.GetElementsByTagName(textElementName)[0].InnerText = titleText;
-
-                // Create a new tile notification.
-                updater.Update(new TileNotification(tileXml));
-                Debug.WriteLine("Background task 'LiveTileTask' feed update: " + title + ".");
-
-                // Don't create more than 5 notifications.
-                if (itemCount++ > 5) break;
-            }
+            // Create a new tile notification.
+            updater.Update(new TileNotification(tileXml));
+            Debug.WriteLine("Background task 'LiveTileTask' feed update: " + titleText + ".");
         }
 
         // Although most HTTP servers do not require User-Agent header, others will reject the request or return
@@ -87,6 +89,5 @@ namespace LiveTileBackgroundTask
         static string customHeaderValue = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
 
         static string textElementName = "text";
-        static string feedUrl = @"http://blogs.msdn.com/b/MainFeed.aspx?Type=BlogsOnly";
     }
 }
