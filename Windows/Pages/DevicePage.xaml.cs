@@ -21,6 +21,7 @@ namespace MiningImpactSensor.Pages
     {
         private static string CURRENT_IMPACT = "Current Impact";
         ObservableCollection<TileModel> tiles = new ObservableCollection<TileModel>();
+        LiveTileUpdater liveTileUpdater;
 
         public DevicePage()
         {
@@ -194,6 +195,8 @@ namespace MiningImpactSensor.Pages
         {
             this.AssignedToTextBox.Text = App.getSelectedSensorTag().AssignedToName;
             updateLoggedOnTime();
+            liveTileUpdater = new LiveTileUpdater();
+            liveTileUpdater.Start();
         }
 
         private void updateLoggedOnTime()
@@ -212,6 +215,11 @@ namespace MiningImpactSensor.Pages
             ((App)Application.Current).SensorTag.Disconnect();
             setCurrentImpct("");
             Frame.GoBack();
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            liveTileUpdater.Stop();
         }
     }
 }

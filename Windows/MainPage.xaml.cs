@@ -19,6 +19,7 @@ namespace MiningImpactSensor
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        LiveTileUpdater liveTileUpdater = new LiveTileUpdater();
         //private static readonly ILog log = LogManager.GetLogger(typeof(MainPage));
         public MainPage()
         {
@@ -60,7 +61,7 @@ namespace MiningImpactSensor
                 BackgroundTaskBuilder taskBuilder = new BackgroundTaskBuilder();
                 taskBuilder.Name = taskName;
                 taskBuilder.TaskEntryPoint = taskEntryPoint;
-                taskBuilder.SetTrigger(new TimeTrigger(15, false));
+                taskBuilder.SetTrigger(new TimeTrigger(5, false));
                 var registration = taskBuilder.Register();
                 App.Debug("Background task registration initiated for " + taskName + ".");
             } else
@@ -98,7 +99,7 @@ namespace MiningImpactSensor
 
         private void Page_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            this.RegisterBackgroundTask();
+            //this.RegisterBackgroundTask();
         }
     }    
 }

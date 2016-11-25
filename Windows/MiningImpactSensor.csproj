@@ -119,6 +119,7 @@
     <Compile Include="Controls\TileModel.cs" />
     <Compile Include="Helpers\IWindowVisibilityWatcher.cs" />
     <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="LiveTileUpdater.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -205,12 +206,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LiveTileBackgroundTask\LiveTileBackgroundTask.csproj">
-      <Project>{4cde41ea-8802-4f9f-afe4-19c2b39c6e4b}</Project>
-      <Name>LiveTileBackgroundTask</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
