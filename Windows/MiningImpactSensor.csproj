@@ -132,6 +132,7 @@
       <DependentUpon>DevicePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="PersistedDevice.cs" />
+    <Compile Include="ShokpodSettings.cs" />
     <Compile Include="PersistedDevices.cs" />
     <Compile Include="ProgressRingWithText.xaml.cs">
       <DependentUpon>ProgressRingWithText.xaml</DependentUpon>

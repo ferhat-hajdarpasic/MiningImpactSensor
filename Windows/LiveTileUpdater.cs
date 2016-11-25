@@ -37,7 +37,8 @@ namespace SensorTag
         {
             try
             {
-                HttpResponseMessage response = await httpClient.GetAsync("http://localhost:8081/records/20/seconds");
+                ShokpodSettings settings = await ShokpodSettings.getSettings();
+                HttpResponseMessage response = await httpClient.GetAsync(settings.ShokpodApiLocation + "/records/20/seconds");
                 int y = 99;
                 if (response.IsSuccessStatusCode)
                 {
@@ -55,7 +56,7 @@ namespace SensorTag
                             float Y = (float)value["Y"];
                             float Z = (float)value["Z"];
 
-                            double amplitude = Math.Sqrt(X * X + Y * Y + Z * Z);
+                            double amplitude = Math.Round(Math.Sqrt(X * X + Y * Y + Z * Z),2);
                             if (amplitude > maximumImpact)
                             {
                                 maximumImpact = amplitude;

@@ -64,7 +64,8 @@ namespace SensorTag
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                 try
                 {
-                    HttpResponseMessage response = await httpClient.PostAsync("http://localhost:8080/records", content);
+                    ShokpodSettings settings = await ShokpodSettings.getSettings();
+                    HttpResponseMessage response = await httpClient.PostAsync(settings.ShokpodApiLocation + "/records", content);
                     if (response.IsSuccessStatusCode)
                     {
                         String json = await response.Content.ReadAsStringAsync();

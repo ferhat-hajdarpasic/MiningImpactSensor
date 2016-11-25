@@ -99,7 +99,7 @@ namespace MiningImpactSensor.Pages
         {
             SensorTag sensor = ((App)Application.Current).SensorTag;
             MovementRecord record = new MovementRecord();
-            record.AssignedName = sensor.DeviceName;
+            record.AssignedName = sensor.AssignedToName;
             record.DeviceAddress = sensor.DeviceAddress;
             SingleRecord singleRecord = new SingleRecord();
             singleRecord.Time = DateTime.Now;
@@ -201,11 +201,18 @@ namespace MiningImpactSensor.Pages
 
         private void updateLoggedOnTime()
         {
-            TimeSpan ts = App.getSelectedSensorTag().DateTimeConnected - DateTime.Now;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
-                ts.Hours, ts.Minutes, ts.Seconds);
+            SensorTag sensor = App.getSelectedSensorTag();
+            if ((sensor != null) && (sensor.Connected))
+            {
+                TimeSpan ts = App.getSelectedSensorTag().DateTimeConnected - DateTime.Now;
+                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
+                    ts.Hours, ts.Minutes, ts.Seconds);
 
-            this.LoggedOnTimeTextBox.Text = "Logged on time: " + elapsedTime;
+                this.LoggedOnTimeTextBox.Text = "Logged on time: " + elapsedTime;
+            } else
+            {
+                this.LoggedOnTimeTextBox.Text = "Logged on time: " + "<not connected>";
+            }
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
