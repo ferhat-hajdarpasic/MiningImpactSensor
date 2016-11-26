@@ -22,6 +22,6 @@
                 Visibility="{Binding SensorValue, Converter={StaticResource EmptyStringVisibilityConverter}}">
             <TextBlock Text="{Binding SensorValue}" FontSize="12" Foreground="Black"/>
         </Border>
-        <TextBlock Text="{Binding Caption}" Grid.Row="1" HorizontalAlignment="Center" FontSize="24" Foreground="{StaticResource PhoneAccentBrush}"/>
+        <TextBlock Text="{Binding Caption}" Grid.Row="1" HorizontalAlignment="Center" FontSize="12" Foreground="{StaticResource PhoneAccentBrush}"/>
     </Grid>
 </UserControl>
