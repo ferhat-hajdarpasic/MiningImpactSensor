@@ -137,9 +137,9 @@ namespace MiningImpactSensor
             short z = (short)((data[11] << 8) | data[10]);
 
             MovementDataChangedEventArgs measurement = new MovementDataChangedEventArgs();
-            measurement.X = (double)(x * SCALE200G)/8;
-            measurement.Y = (double)(y * SCALE200G)/8;
-            measurement.Z = (double)(z * SCALE200G)/8;
+            measurement.X = Math.Round((double)(x * SCALE200G)/8, 2);
+            measurement.Y = Math.Round((double)(y * SCALE200G)/8, 2);
+            measurement.Z = Math.Round((double)(z * SCALE200G)/8, 2);
             //String logMsg = "X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total;
             //App.Debug("x="+ Convert.ToString(data[7], 2).PadLeft(8,'0') + Convert.ToString(data[6], 2).PadLeft(8, '0') +
             //", y=" + Convert.ToString(data[9], 2).PadLeft(8, '0') + Convert.ToString(data[8], 2).PadLeft(8, '0') +
@@ -165,7 +165,7 @@ namespace MiningImpactSensor
             public double X { get; set; }
             public double Y { get; set; }
             public double Z { get; set; }
-            public double Total { get { return Math.Sqrt(X*X + Y*Y + Z*Z);} }
+            public double Total { get { return Math.Round(Math.Sqrt(X*X + Y*Y + Z*Z), 2);} }
         }
 
         public event EventHandler<MovementDataChangedEventArgs> MovementDataChanged;

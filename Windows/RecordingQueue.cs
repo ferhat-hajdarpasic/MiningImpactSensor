@@ -94,7 +94,7 @@ namespace SensorTag
             foreach (SingleRecord singleRecord in record.Recording)
             {
                 double _acceleration = singleRecord.Value.Acceleration;
-                App.Debug("Acceleration to send: " + _acceleration);
+                App.Debug("Acceleration to send: " + Math.Round(_acceleration, 2));
                 if (singleRecord.Value.Acceleration > maximumImpact.Value.Acceleration)
                 {
                     maximumImpact = singleRecord;

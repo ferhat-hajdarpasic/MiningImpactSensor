@@ -22,6 +22,7 @@ namespace MiningImpactSensor.Pages
         private static string CURRENT_IMPACT = "Current Impact";
         ObservableCollection<TileModel> tiles = new ObservableCollection<TileModel>();
         LiveTileUpdater liveTileUpdater;
+        DispatcherTimer loggedOnIndicatorTimer;
 
         public DevicePage()
         {
@@ -78,9 +79,8 @@ namespace MiningImpactSensor.Pages
         {
             var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
             {
-                string caption = Math.Round(movementData.X, 3) + "," + Math.Round(movementData.Y, 3) + "," + Math.Round(movementData.Z, 3);
+                string caption = Math.Round(movementData.Total, 2) + "G. [" + Math.Round(movementData.X, 2) + "," + Math.Round(movementData.Y, 2) + "," + Math.Round(movementData.Z, 2) + "]";
                 setCurrentImpct(caption);
-                updateLoggedOnTime();
             }));
 
             PostAsJsonAsync(movementData);
@@ -194,25 +194,9 @@ namespace MiningImpactSensor.Pages
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             this.AssignedToTextBox.Text = App.getSelectedSensorTag().AssignedToName;
-            updateLoggedOnTime();
             liveTileUpdater = new LiveTileUpdater();
             liveTileUpdater.Start();
-        }
-
-        private void updateLoggedOnTime()
-        {
-            SensorTag sensor = App.getSelectedSensorTag();
-            if ((sensor != null) && (sensor.Connected) && (sensor.DateTimeConnected.Year != 1))
-            {
-                TimeSpan ts = App.getSelectedSensorTag().DateTimeConnected - DateTime.Now;
-                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",
-                    ts.Hours, ts.Minutes, ts.Seconds);
-
-                this.LoggedOnTimeTextBox.Text = "Logged on time: " + elapsedTime;
-            } else
-            {
-                this.LoggedOnTimeTextBox.Text = "Logged on time: " + "<not connected>";
-            }
+            startLoggedOnTimer();
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
@@ -227,6 +211,27 @@ namespace MiningImpactSensor.Pages
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
             liveTileUpdater.Stop();
+            loggedOnIndicatorTimer.Stop();
+            loggedOnIndicatorTimer = null;
+        }
+
+        void startLoggedOnTimer()
+        {
+            loggedOnIndicatorTimer = new Windows.UI.Xaml.DispatcherTimer();
+            loggedOnIndicatorTimer.Tick += (object sender, object e) => {
+                SensorTag sensor = App.getSelectedSensorTag();
+                if ((sensor != null) && (sensor.Connected) && (sensor.DateTimeConnected.Year != 1))
+                {
+                    TimeSpan ts = App.getSelectedSensorTag().DateTimeConnected - DateTime.Now;
+                    this.LoggedOnTimeTextBox.Text = "Logged on time: " + String.Format("{0:dd\\.hh\\:mm\\:ss}", ts);
+                }
+                else
+                {
+                    this.LoggedOnTimeTextBox.Text = "Logged on time: " + "<not connected>";
+                }
+            };
+            loggedOnIndicatorTimer.Interval = new TimeSpan(0, 0, 1);
+            loggedOnIndicatorTimer.Start();
         }
     }
 }
