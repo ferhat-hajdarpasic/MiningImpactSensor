@@ -28,14 +28,16 @@ namespace MiningImpactSensor
         {
             string name = device.Name;
             App.Debug("Found sensor tag: [{0}]", name);
-            if (name == "CC2650 SensorTag" || name == "SensorTag 2.0" || name == "SensorTag")
-            {
-                DeviceName = "CC2650";
-            }
-            else
-            {
-                DeviceName = "CC2541";
-            }
+
+            DeviceName = device.Name;
+            //if (name == "CC2650 SensorTag" || name == "SensorTag 2.0" || name == "SensorTag")
+            //{
+            //    DeviceName = "CC2650";
+            //}
+            //else
+            //{
+            //    DeviceName = "CC2541";
+            //}
             this.DeviceId = device.Id;
             this.DeviceAddress = SensorTagDeviceIdParser.parse(device);
             this.AssignedToName = DeviceAddress;
@@ -57,7 +59,7 @@ namespace MiningImpactSensor
             foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
             {
                 string name = device.Name;
-                if (name.Contains("SensorTag") || name.Contains("Sensor Tag"))
+                if (name.Contains("SensorTag") || name.Contains("Sensor Tag") || name.Contains("ShokPod"))
                 {
                     SensorTag sensor = new SensorTag(device);
                     sensor.AssignedToName = await PersistedDevices.getAssignedToName(sensor.DeviceAddress);
@@ -108,8 +110,8 @@ namespace MiningImpactSensor
                 var accConfig = accService.GetCharacteristics(new Guid("f000aa82-0451-4000-b000-000000000000"))[0];
                 await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
 
-                var periodConfig = accService.GetCharacteristics(new Guid("f000aa83-0451-4000-b000-000000000000"))[0];
-                await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
+                //var periodConfig = accService.GetCharacteristics(new Guid("f000aa83-0451-4000-b000-000000000000"))[0];
+                //await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
 
                 App.Debug("Connection all good." + DeviceId);
                 StartDeviceConnectionWatcher();
