@@ -27,7 +27,6 @@ namespace LiveTileBackgroundTask
             try
             {
                 HttpResponseMessage response = await httpClient.GetAsync("http://localhost:8080/records/20/seconds");
-                int y = 99;
                 if (response.IsSuccessStatusCode)
                 {
                     String json = await response.Content.ReadAsStringAsync();
@@ -62,12 +61,10 @@ namespace LiveTileBackgroundTask
             {
                 Debug.WriteLine(e.Message);
             }
-
-            // Inform the system that the task is finished.
             deferral.Complete();
         }
 
-        private static async void UpdateTile(double maximumImpact)
+        private static void UpdateTile(double maximumImpact)
         {
             var updater = TileUpdateManager.CreateTileUpdaterForApplication();
             updater.EnableNotificationQueue(true);
@@ -76,17 +73,10 @@ namespace LiveTileBackgroundTask
 
             string titleText = "" + maximumImpact + "G";
             tileXml.GetElementsByTagName(textElementName)[0].InnerText = titleText;
-           // ((XmlElement)tileXml.GetElementsByTagName("image")[0]).SetAttribute("src", "ms-appx://Assets/shokpod-icon.png");
 
-            // Create a new tile notification.
             updater.Update(new TileNotification(tileXml));
             Debug.WriteLine("Background task 'LiveTileTask' feed update: " + titleText + ".");
         }
-
-        // Although most HTTP servers do not require User-Agent header, others will reject the request or return
-        // a different response if this header is missing. Use SetRequestHeader() to add custom headers.
-        static string customHeaderName = "User-Agent";
-        static string customHeaderValue = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
 
         static string textElementName = "text";
     }

@@ -53,8 +53,6 @@ namespace MiningImpactSensor
 
     public static async Task<List<SensorTag>> FindAllMotionSensors()
         {
-            List<PersistedDevice> persistedDevices = await PersistedDevices.readFromFile();
-
             List<SensorTag> result = new List<SensorTag>();
             foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
             {
@@ -62,8 +60,9 @@ namespace MiningImpactSensor
                 if (name.Contains("SensorTag") || name.Contains("Sensor Tag") || name.Contains("ShokPod"))
                 {
                     SensorTag sensor = new SensorTag(device);
-                    sensor.AssignedToName = await PersistedDevices.getAssignedToName(sensor.DeviceAddress);
-                    sensor.Connected = await PersistedDevices.getConnected(sensor.DeviceAddress);
+                    PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
+                    sensor.AssignedToName = persistedDevices.getAssignedToName(sensor.DeviceAddress);
+                    sensor.Connected = persistedDevices.getConnected(sensor.DeviceAddress);
                     result.Add(sensor);
                 }
                 App.Debug("Name=" + device.Name + ", Id=" + device.Id);
@@ -81,7 +80,7 @@ namespace MiningImpactSensor
             watcher.Start();
         }
 
-        private async void DeviceConnection_Updated(PnpObjectWatcher watcher, PnpObjectUpdate args)
+        private void DeviceConnection_Updated(PnpObjectWatcher watcher, PnpObjectUpdate args)
         {
             bool isConnected = (bool)args.Properties["System.Devices.Connected"];
 
@@ -124,28 +123,35 @@ namespace MiningImpactSensor
             }
             this.Connected = result;
             this.DateTimeConnected = DateTime.Now;
-            PersistedDevices.saveDevice(this);
+            PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
+            persistedDevices.saveDevice(this);
             return result;
         }
 
         private async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
-            double SCALE200G = (double)0.049;
-            var data = (await sender.ReadValueAsync()).Value.ToArray();
-            short x = (short)((data[7] << 8) | data[6]);
-            short y = (short)((data[9] << 8) | data[8]);
-            short z = (short)((data[11] << 8) | data[10]);
+            try
+            {
+                double SCALE200G = (double)0.049;
+                var data = (await sender.ReadValueAsync()).Value.ToArray();
+                short x = (short)((data[7] << 8) | data[6]);
+                short y = (short)((data[9] << 8) | data[8]);
+                short z = (short)((data[11] << 8) | data[10]);
 
-            MovementDataChangedEventArgs measurement = new MovementDataChangedEventArgs();
-            measurement.X = Math.Round((double)(x * SCALE200G)/8, 2);
-            measurement.Y = Math.Round((double)(y * SCALE200G)/8, 2);
-            measurement.Z = Math.Round((double)(z * SCALE200G)/8, 2);
-            //String logMsg = "X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total;
-            //App.Debug("x="+ Convert.ToString(data[7], 2).PadLeft(8,'0') + Convert.ToString(data[6], 2).PadLeft(8, '0') +
-            //", y=" + Convert.ToString(data[9], 2).PadLeft(8, '0') + Convert.ToString(data[8], 2).PadLeft(8, '0') +
-            //", z=" + Convert.ToString(data[11], 2).PadLeft(8, '0') + Convert.ToString(data[10], 2).PadLeft(8, '0'));
+                MovementDataChangedEventArgs measurement = new MovementDataChangedEventArgs();
+                measurement.X = Math.Round((double)(x * SCALE200G) / 8, 2);
+                measurement.Y = Math.Round((double)(y * SCALE200G) / 8, 2);
+                measurement.Z = Math.Round((double)(z * SCALE200G) / 8, 2);
+                //String logMsg = "X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total;
+                //App.Debug("x="+ Convert.ToString(data[7], 2).PadLeft(8,'0') + Convert.ToString(data[6], 2).PadLeft(8, '0') +
+                //", y=" + Convert.ToString(data[9], 2).PadLeft(8, '0') + Convert.ToString(data[8], 2).PadLeft(8, '0') +
+                //", z=" + Convert.ToString(data[11], 2).PadLeft(8, '0') + Convert.ToString(data[10], 2).PadLeft(8, '0'));
 
-            MovementDataChanged(this, measurement);
+                MovementDataChanged(this, measurement);
+            } catch(ObjectDisposedException e)
+            {
+                App.Debug("Error: received data while object disposed of. " + e.Message);
+            }
         }
 
         internal async void Disconnect()

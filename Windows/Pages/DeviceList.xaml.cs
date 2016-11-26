@@ -29,17 +29,17 @@ namespace MiningImpactSensor.Pages
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
         }
 
-        async void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             if (args.VirtualKey == Windows.System.VirtualKey.F5)
             {
-                await this.Scan();
+                this.Scan();
             }
         }
 
-        public async void Show()
+        public void Show()
         {
-            await this.Scan();
+            this.Scan();
         }
 
         public void Hide()
@@ -47,7 +47,7 @@ namespace MiningImpactSensor.Pages
 
         }
 
-        private async Task Scan()
+        private async void Scan()
         {
             try
             {
@@ -134,10 +134,10 @@ namespace MiningImpactSensor.Pages
             frame.Navigate(typeof(DevicePage), sensor);
         }
 
-        private async void OnRefresh(object sender, RoutedEventArgs e)
+        private void OnRefresh(object sender, RoutedEventArgs e)
         {
             RefreshButton.IsEnabled = false;
-            await this.Scan();
+            this.Scan();
             RefreshButton.IsEnabled = true;
         }
 

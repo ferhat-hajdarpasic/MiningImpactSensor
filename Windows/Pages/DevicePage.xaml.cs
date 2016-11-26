@@ -207,10 +207,11 @@ namespace MiningImpactSensor.Pages
             SelectedDevicePage = this;
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private async void button_Click(object sender, RoutedEventArgs e)
         {
             ((App)Application.Current).SensorTag.Connected = false;
-            PersistedDevices.saveDevice(((App)Application.Current).SensorTag);
+            PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
+            persistedDevices.saveDevice(((App)Application.Current).SensorTag);
             ((App)Application.Current).SensorTag.Disconnect();
             setCurrentImpct("");
             Frame.GoBack();

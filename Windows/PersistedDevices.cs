@@ -12,17 +12,33 @@ namespace SensorTag
 {
     class PersistedDevices
     {
-        public static List<PersistedDevice> devices;
+        private List<PersistedDevice> devices = null;
         private static string FILE_NAME = "devices.json";
 
-        public static async Task<List<PersistedDevice>> readFromFile()
+        private static PersistedDevices singleInstance = null;
+
+        public static async Task<PersistedDevices> getPersistedDevices()
         {
-            List<PersistedDevice> result = new List<PersistedDevice>();
+            if (singleInstance == null)
+            {
+                singleInstance = await create();
+            }
+            return singleInstance;
+        }
+
+        private PersistedDevices(List<PersistedDevice> result)
+        {
+            this.devices = result;
+        }
+
+        private static async Task<PersistedDevices> create()
+        {
+            List<PersistedDevice> devices = new List<PersistedDevice>();
             try
             {
                 Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
                 StorageFile devicesFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.OpenIfExists);
-                String devicesJson = await FileIO.ReadTextAsync(devicesFile);
+                string devicesJson = await FileIO.ReadTextAsync(devicesFile);
 
                 App.Debug(devicesJson);
 
@@ -43,16 +59,17 @@ namespace SensorTag
                     device.AssignedToName = obj.GetNamedString("AssignedToName");
                     device.Selected = obj.GetNamedBoolean("Selected");
                     device.DeviceAddress = obj.GetNamedString("DeviceAddress");
-                    result.Add(device);
+                    devices.Add(device);
                 }
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 App.Debug("Error reading " + FILE_NAME + "." + e.Message);
             }
-            devices = result;
-            return result;
+            return new PersistedDevices(devices);
         }
-        public static async void saveToFile(List<PersistedDevice> _devices)
+
+        private async void saveToFile(List<PersistedDevice> _devices)
         {
             Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
             StorageFile devicesFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.ReplaceExisting);
@@ -62,12 +79,8 @@ namespace SensorTag
             devices = _devices;
         }
 
-        internal static async Task<string> getAssignedToName(string deviceAddress)
+        public string getAssignedToName(string deviceAddress)
         {
-            if (devices == null)
-            {
-                devices = await readFromFile();
-            }
             foreach (PersistedDevice device in devices)
             {
                 if (device.DeviceAddress == deviceAddress)
@@ -78,12 +91,8 @@ namespace SensorTag
             return deviceAddress;
         }
 
-        internal static async Task<bool> getConnected(string deviceAddress)
+        public bool getConnected(string deviceAddress)
         {
-            if (devices == null)
-            {
-                devices = await readFromFile();
-            }
             foreach (PersistedDevice device in devices)
             {
                 if (device.DeviceAddress == deviceAddress)
@@ -94,7 +103,7 @@ namespace SensorTag
             return false;
         }
 
-        public static void saveDevice(MiningImpactSensor.SensorTag sensorTag)
+        public void saveDevice(MiningImpactSensor.SensorTag sensorTag)
         {
             PersistedDevice targetDevice = null;
             foreach (PersistedDevice device in devices)
@@ -114,8 +123,6 @@ namespace SensorTag
             targetDevice.Selected = sensorTag.Connected;
             targetDevice.DeviceAddress = sensorTag.DeviceAddress;
             targetDevice.DeviceName = sensorTag.DeviceName;
-
-
             saveToFile(devices);
         }
     }

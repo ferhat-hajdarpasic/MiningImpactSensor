@@ -136,12 +136,13 @@ namespace MiningImpactSensor
             deferral.Complete();
         }
 
-        public static void SetSensorTagName(string text)
+        public static async void SetSensorTagName(string text)
         {
             if (App.getSelectedSensorTag().AssignedToName != text)
             {
                 App.getSelectedSensorTag().AssignedToName = text;
-                PersistedDevices.saveDevice(App.getSelectedSensorTag());
+                PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
+                persistedDevices.saveDevice(App.getSelectedSensorTag());
             }
         }
     }
