@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiningImpactSensor", "Windows\MiningImpactSensor.csproj", "{B6C91496-F435-49C2-A851-4C8E8D780823}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shokpod", "Windows\Shokpod.csproj", "{B6C91496-F435-49C2-A851-4C8E8D780823}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveTileBackgroundTask", "LiveTileBackgroundTask\LiveTileBackgroundTask.csproj", "{4CDE41EA-8802-4F9F-AFE4-19C2B39C6E4B}"
 EndProject
