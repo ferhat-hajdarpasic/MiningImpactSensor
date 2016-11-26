@@ -23,6 +23,7 @@ namespace MiningImpactSensor.Pages
         ObservableCollection<TileModel> tiles = new ObservableCollection<TileModel>();
         LiveTileUpdater liveTileUpdater;
         DispatcherTimer loggedOnIndicatorTimer;
+        private static DevicePage SelectedDevicePage;
 
         public DevicePage()
         {
@@ -57,7 +58,7 @@ namespace MiningImpactSensor.Pages
 
         void OnStatusChanged(object sender, string status)
         {
-            DisplayMessage(status);
+            Debug(status);
         }
 
         double Fahrenheit(double celcius)
@@ -109,6 +110,20 @@ namespace MiningImpactSensor.Pages
             RecordingQueue.Enqueue(record);
         }
 
+        internal static async void Debug(string message)
+        {
+            App.Debug(message);
+            if (SelectedDevicePage != null)
+            {
+                await SelectedDevicePage.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => {
+                    if (SelectedDevicePage != null)
+                    {
+                        SelectedDevicePage.DebugMessage.Text = message;
+                    }
+                });
+            }
+        }
+
         private TileModel GetTile(string name)
         {
             return (from t in tiles where t.Caption == name select t).FirstOrDefault();
@@ -116,7 +131,7 @@ namespace MiningImpactSensor.Pages
 
         void OnServiceError(object sender, string message)
         {
-            DisplayMessage(message);
+            Debug(message);
         }
 
         private void Clear()
@@ -134,14 +149,6 @@ namespace MiningImpactSensor.Pages
         /// property is typically used to configure the page.</param>
         public void Show()
         {
-        }
-
-        private void DisplayMessage(string message)
-        {
-            var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
-            {
-                ErrorMessage.Text = message;
-            }));
         }
 
         private void OnItemClick(object sender, ItemClickEventArgs e)
@@ -197,6 +204,7 @@ namespace MiningImpactSensor.Pages
             liveTileUpdater = new LiveTileUpdater();
             liveTileUpdater.Start();
             startLoggedOnTimer();
+            SelectedDevicePage = this;
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
@@ -213,6 +221,7 @@ namespace MiningImpactSensor.Pages
             liveTileUpdater.Stop();
             loggedOnIndicatorTimer.Stop();
             loggedOnIndicatorTimer = null;
+            SelectedDevicePage = null;
         }
 
         void startLoggedOnTimer()

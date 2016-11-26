@@ -38,7 +38,9 @@ namespace SensorTag
             try
             {
                 ShokpodSettings settings = await ShokpodSettings.getSettings();
-                HttpResponseMessage response = await httpClient.GetAsync(settings.ShokpodApiLocation + "/records/20/seconds");
+                int secondsPeriod = settings.LiveTileUpdatePeriod;
+
+                HttpResponseMessage response = await httpClient.GetAsync(settings.ShokpodApiLocation + "/records/" + secondsPeriod + "/seconds");
                 int y = 99;
                 if (response.IsSuccessStatusCode)
                 {
@@ -99,17 +101,20 @@ namespace SensorTag
             return tileXml;
         }
 
-        internal void Start()
+        internal async void Start()
         {
+            ShokpodSettings settings = await ShokpodSettings.getSettings();
+            int secondsPeriod = settings.LiveTileUpdatePeriod;
             dispatcherTimer = new Windows.UI.Xaml.DispatcherTimer();
             dispatcherTimer.Tick += dispatcherTimer_Tick;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, secondsPeriod);
             dispatcherTimer.Start();
         }
 
         internal void Stop()
         {
             dispatcherTimer.Stop();
+            dispatcherTimer = null;
         }
     }
 }

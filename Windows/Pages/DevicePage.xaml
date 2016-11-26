@@ -46,11 +46,11 @@
                                    />
                 </DataTemplate>
             </ListView.ItemTemplate>
-            <Button x:Name="button1" Content="Button" Height="100" Width="100"/>
         </ListView>
 
-        <TextBlock x:Name="ErrorMessage" Text="" FontSize="24" Margin="10" Grid.Row="2" TextWrapping="Wrap" Foreground="Salmon"/>
-        <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Stretch" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36" Click="button_Click"/>
-
+        <StackPanel Orientation="Vertical" Grid.Row="2">
+            <TextBlock x:Name="DebugMessage" Text="" FontSize="24" Margin="10" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+            <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36" Click="button_Click"/>
+        </StackPanel>
     </Grid>
 </Page>

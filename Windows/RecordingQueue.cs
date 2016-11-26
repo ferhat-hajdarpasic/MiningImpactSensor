@@ -58,54 +58,67 @@ namespace SensorTag
 
             foreach (MovementRecord recordItem in groupedByDeviceAddress.Values)
             {
-                MovementRecord record = maximumImpact(recordItem);
-                var itemAsJson = JsonConvert.SerializeObject(record);
-                var content = new StringContent(itemAsJson);
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                try
+                MovementRecord record = await maximumImpact(recordItem);
+                if (record != null)
                 {
-                    ShokpodSettings settings = await ShokpodSettings.getSettings();
-                    HttpResponseMessage response = await httpClient.PostAsync(settings.ShokpodApiLocation + "/records", content);
-                    if (response.IsSuccessStatusCode)
+                    var itemAsJson = JsonConvert.SerializeObject(record);
+                    var content = new StringContent(itemAsJson);
+                    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                    try
                     {
-                        String json = await response.Content.ReadAsStringAsync();
-                        var pushServerResponse = JsonConvert.DeserializeAnonymousType(json, new
+                        ShokpodSettings settings = await ShokpodSettings.getSettings();
+                        HttpResponseMessage response = await httpClient.PostAsync(settings.ShokpodApiLocation + "/records", content);
+                        if (response.IsSuccessStatusCode)
                         {
-                            type = true,
-                            data = ""
-                        });
-                        App.Debug(pushServerResponse.data);
+                            String json = await response.Content.ReadAsStringAsync();
+                            var pushServerResponse = JsonConvert.DeserializeAnonymousType(json, new
+                            {
+                                type = true,
+                                data = ""
+                            });
+                            App.Debug(pushServerResponse.data);
+                            MiningImpactSensor.Pages.DevicePage.Debug("Persisted acceleration of " + record.Recording[0].Value.Acceleration + "G.");
+                        }
+                        else
+                        {
+                            App.Debug("HTTP call to local server failed." + response.ReasonPhrase);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        App.Debug("HTTP call to local server failed." + response.ReasonPhrase);
+                        MiningImpactSensor.Pages.DevicePage.Debug("Exception while saving data to the local server." + e.Message);
                     }
-                }
-                catch (Exception e)
-                {
-                    App.Debug("Exception while saving data to the local server." + e.Message);
                 }
             }
         }
 
-        private static MovementRecord maximumImpact(MovementRecord record)
+        private static async Task<MovementRecord> maximumImpact(MovementRecord record)
         {
             SingleRecord maximumImpact = new SingleRecord();
             foreach (SingleRecord singleRecord in record.Recording)
             {
                 double _acceleration = singleRecord.Value.Acceleration;
-                App.Debug("Acceleration to send: " + Math.Round(_acceleration, 2));
                 if (singleRecord.Value.Acceleration > maximumImpact.Value.Acceleration)
                 {
                     maximumImpact = singleRecord;
                 }
             }
-            MovementRecord result = new MovementRecord();
-            result.AssignedName = record.AssignedName;
-            result.DeviceAddress = record.DeviceAddress;
-            result.Recording.Add(maximumImpact);
+            ShokpodSettings settings = await ShokpodSettings.getSettings();
+            double serverReportingThreshold = settings.ServerImpactThreshhold;
 
-            return result;
+            if (maximumImpact.Value.Acceleration > serverReportingThreshold)
+            {
+                MovementRecord result = new MovementRecord();
+                result.AssignedName = record.AssignedName;
+                result.DeviceAddress = record.DeviceAddress;
+                result.Recording.Add(maximumImpact);
+                MiningImpactSensor.Pages.DevicePage.Debug("Recording acceleration of " + maximumImpact.Value.Acceleration + "G.");
+                return result;
+            } else
+            {
+                MiningImpactSensor.Pages.DevicePage.Debug(maximumImpact.Value.Acceleration + "G is below threshold of " + serverReportingThreshold + "G, not recording it.");
+                return null;
+            }
         }
     }
 }

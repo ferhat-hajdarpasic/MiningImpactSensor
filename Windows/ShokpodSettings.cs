@@ -14,6 +14,9 @@ namespace SensorTag
     {
         private static string FILE_NAME = "settings.json";
         public string ShokpodApiLocation { get; set; }
+        public int LiveTileUpdatePeriod { get; set; }
+        public double ServerImpactThreshhold { get; private set; }
+
         private static ShokpodSettings _settings = null;
 
         public static async Task<ShokpodSettings> getSettings()
@@ -41,9 +44,13 @@ namespace SensorTag
                     try
                     {
                         _settings.ShokpodApiLocation = settingsObject.GetNamedString("ShokpodApiLocation");
+                        _settings.LiveTileUpdatePeriod = (int)settingsObject.GetNamedNumber("LiveTileUpdatePeriod");
+                        _settings.ServerImpactThreshhold = settingsObject.GetNamedNumber("ServerImpactThreshhold");
                     } catch(Exception e)
                     {
                         _settings.ShokpodApiLocation = @"http://localhost:8081";
+                        _settings.LiveTileUpdatePeriod = 5;
+                        _settings.ServerImpactThreshhold = 10;
                         saveToFile(_settings);
                     }
                 }
