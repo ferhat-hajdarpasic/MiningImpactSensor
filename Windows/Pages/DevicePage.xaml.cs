@@ -202,7 +202,7 @@ namespace MiningImpactSensor.Pages
         private void updateLoggedOnTime()
         {
             SensorTag sensor = App.getSelectedSensorTag();
-            if ((sensor != null) && (sensor.Connected))
+            if ((sensor != null) && (sensor.Connected) && (sensor.DateTimeConnected.Year != 1))
             {
                 TimeSpan ts = App.getSelectedSensorTag().DateTimeConnected - DateTime.Now;
                 string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}",

@@ -82,6 +82,10 @@ namespace MiningImpactSensor
         private async void DeviceConnection_Updated(PnpObjectWatcher watcher, PnpObjectUpdate args)
         {
             bool isConnected = (bool)args.Properties["System.Devices.Connected"];
+
+            DateTimeConnected = DateTime.Now;
+            this.Connected = true;
+
             if (isConnected)
             {
                 watcher.Stop();
@@ -91,6 +95,7 @@ namespace MiningImpactSensor
 
         public async Task<bool> ConnectMotionService()
         {
+            bool result = false;
             accService = await GattDeviceService.FromIdAsync(this.DeviceId);
             if (accService != null)
             {
@@ -107,19 +112,18 @@ namespace MiningImpactSensor
                 await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
 
                 App.Debug("Connection all good." + DeviceId);
-
-                DateTimeConnected = DateTime.Now;
-                this.Connected = true;
-                PersistedDevices.saveDevice(this);
-
                 StartDeviceConnectionWatcher();
-                return true;
+                result = true;
             }
             else
             {
                 App.Debug("Could not connect to device." + DeviceId);
-                return false;
+                result = false;
             }
+            this.Connected = result;
+            this.DateTimeConnected = DateTime.Now;
+            PersistedDevices.saveDevice(this);
+            return result;
         }
 
         private async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)

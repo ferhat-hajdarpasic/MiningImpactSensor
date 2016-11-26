@@ -47,34 +47,30 @@ namespace MiningImpactSensor.Pages
 
         }
 
-        bool finding;
         private async Task Scan()
         {
             try
             {
-                if (finding)
-                {
-                    return;
-                }
-                finding = true;
-
                 HideHelp();
 
                 tiles.Clear();
 
                 App.Debug("Looking for sensors");
+                SensorTag sensorToConnectTo = null;
                 List<SensorTag> pairedSensors = await SensorTag.FindAllMotionSensors();
                 foreach (SensorTag sensor in pairedSensors)
                 {
                     App.Debug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
-                    
+
                     tiles.Add(new TileModel() { Caption = sensor.AssignedToName, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")), UserData = sensor });
                     sensor.MovementDataChanged += OnMovementMeasurementValueChanged;
 
-                    if (sensor.Connected)
+                    if ((sensorToConnectTo == null) && sensor.Connected)
                     {
-                        App.SetSelectedSensorTag(sensor);
-                        Boolean success = await sensor.ConnectMotionService();
+                        sensorToConnectTo = sensor;
+                    } else
+                    {
+                        sensor.Connected = false;
                     }
                 }
 
@@ -89,8 +85,6 @@ namespace MiningImpactSensor.Pages
                 DisplayMessage("Finding devices failed, please make sure your Bluetooth radio is on.  Details: " + ex.Message);
                 ShowHelp();
             }
-
-            finding = false;
         }
 
         private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs movementData)
