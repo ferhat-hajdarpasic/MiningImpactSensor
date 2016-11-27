@@ -11,7 +11,7 @@
     d:DesignWidth="400">
 
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Center">
+    <Grid Background="#ff4d4d4d" HorizontalAlignment="Center">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
 
         <Grid Background="{StaticResource PageTitleBackgroundColor}">
-            <TextBlock Text="Known And Nearby ShokPods" FontSize="36" Margin="10,10" Foreground="{StaticResource TextForegroundColor}" />
+            <TextBlock Text="Known And Nearby ShokPods" FontSize="24" Margin="10,10" Foreground="{StaticResource TextForegroundColor}" />
         </Grid>
 
         <ListView x:Name="SensorList"  Grid.Row="1" SelectionMode="None"

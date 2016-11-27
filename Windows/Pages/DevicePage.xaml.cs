@@ -45,7 +45,7 @@ namespace MiningImpactSensor.Pages
 
             if(success)
             {
-                AddTile(new TileModel() { Caption = CURRENT_IMPACT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")) });
+                AddTile(new TileModel() { Caption = CURRENT_IMPACT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")) });
             }
 
             base.OnNavigatedTo(e);

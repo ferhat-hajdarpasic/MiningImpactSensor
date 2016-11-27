@@ -12,7 +12,7 @@
     <UserControl.Resources>
         <c:EmptyStringVisibilityConverter x:Key="EmptyStringVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid>
+    <Grid Background="{StaticResource PageTitleBackgroundColor}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>

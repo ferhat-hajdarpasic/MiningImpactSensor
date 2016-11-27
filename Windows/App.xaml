@@ -9,7 +9,7 @@
                 <ResourceDictionary Source="Common/StandardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <SolidColorBrush x:Key="PhoneAccentBrush" Color="White"/>
-            <SolidColorBrush x:Key="PageTitleBackgroundColor" Color="#FF39E42E"/>
+            <SolidColorBrush x:Key="PageTitleBackgroundColor" Color="#FF7BC143"/>
             <SolidColorBrush x:Key="TextForegroundColor" Color="#FFFFFFFF"/>
         </ResourceDictionary>
 

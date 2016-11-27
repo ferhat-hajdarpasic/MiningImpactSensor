@@ -62,7 +62,7 @@ namespace MiningImpactSensor.Pages
                 {
                     App.Debug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
 
-                    tiles.Add(new TileModel() { Caption = sensor.AssignedToName, Icon = new BitmapImage(new Uri("ms-appx:/Assets/Accelerometer.png")), UserData = sensor });
+                    tiles.Add(new TileModel() { Caption = sensor.AssignedToName, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")), UserData = sensor });
                     sensor.MovementDataChanged += OnMovementMeasurementValueChanged;
 
                     if ((sensorToConnectTo == null) && sensor.Connected)
