@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="WhiteSpider.Shokpod" Publisher="CN=ferha" Version="1.2.0.45" />
+  <Identity Name="WhiteSpider.Shokpod" Publisher="CN=ferha" Version="1.2.0.46" />
   <Properties>
     <DisplayName>Shokpod</DisplayName>
     <PublisherDisplayName>Ferhat Hajdarpasic</PublisherDisplayName>

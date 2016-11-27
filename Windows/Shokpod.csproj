@@ -162,6 +162,10 @@
     <Content Include="Assets\Eye.png" />
     <Content Include="Assets\Logo.scale-100.png" />
     <Content Include="Assets\Logo220x50.png" />
+    <Content Include="Assets\Logo248x120.png" />
+    <Content Include="Assets\Logo30x30.png" />
+    <Content Include="Assets\Logo50x50.png" />
+    <Content Include="Assets\Logo558x270.png" />
     <Content Include="Assets\Shockpod background 27112016 001.png" />
     <Content Include="Assets\Shockpod icon 27112016 001.png" />
     <Content Include="Assets\Shockpod Logo 27112016 001.png" />
