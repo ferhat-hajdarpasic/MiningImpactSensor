@@ -17,7 +17,7 @@ namespace SensorTag
     class LiveTileUpdater
     {
         DispatcherTimer dispatcherTimer;
-        private const string shokpod_icon = "ms-appx:///Assets/shokpod-icon.png";
+        private const string shokpod_icon = "ms-appx:///Assets/Shockpod icon 27112016 001.png";
         private static HttpClient httpClient = new HttpClient();
 
         void dispatcherTimer_Tick(object sender, object e)

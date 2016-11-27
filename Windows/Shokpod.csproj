@@ -181,6 +181,8 @@
     <Content Include="Assets\Square70x70Logo.scale-180.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
     <Content Include="Assets\ti-sensortag-cc2650.png" />
+    <Content Include="Assets\TileWideLogo310x150.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-180.png" />
     <Content Include="Assets\Wide310x150Logo.scale-80.png" />
     <None Include="Package.StoreAssociation.xml">
