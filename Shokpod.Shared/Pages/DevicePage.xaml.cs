@@ -107,7 +107,7 @@ namespace MiningImpactSensor.Pages
             singleRecord.Value = new MovementMeasurement(movementData.X, movementData.Y, movementData.Z);
             record.Recording.Add(singleRecord);
 
-            RecordingQueue.Enqueue(record);
+            RecordingQueue.AddToDeviceQueue(record);
         }
 
         internal static async void Debug(string message)

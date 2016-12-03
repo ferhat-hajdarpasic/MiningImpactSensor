@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>73a7d97b-3056-4186-b9da-1dd12b8df0f5</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>SensorTag</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\EmptyStringVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\ScrollingGraph.xaml.cs">
+      <DependentUpon>ScrollingGraph.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\TileControl.xaml.cs">
+      <DependentUpon>TileControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\TileModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\IWindowVisibilityWatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\Settings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LiveTileUpdater.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MetroEventSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MovementMeasurement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MovementRecord.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pages\DeviceList.xaml.cs">
+      <DependentUpon>DeviceList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Pages\DevicePage.xaml.cs">
+      <DependentUpon>DevicePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)PersistedDevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PersistedDevices.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProgressRingWithText.xaml.cs">
+      <DependentUpon>ProgressRingWithText.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)RecordingQueue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SensorTagDeviceIdParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SensorTag\SensorTag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ShokpodSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StorageFileEventListener.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Common\StandardStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\ScrollingGraph.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\TileControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Pages\DeviceList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Pages\DevicePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)ProgressRingWithText.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Accelerometer.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\BadgeLogo.scale-100.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\BadgeLogo.scale-140.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\BadgeLogo.scale-180.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Buttons.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Eye.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo.scale-100.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo220x50.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo248x120.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo30x30.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo50x50.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo558x270.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod background 27112016 001.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod icon 27112016 001.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod Logo 27112016 001.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod splash page 27112016 001.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\shokpod-icon.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\shokpodSensorIcon150x150.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\SmallLogo.scale-100.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\splash1116x540.scale-100.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\splash1116x540.scale-140.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\splash1116x540.scale-180.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\splash620x300.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\splash868x420.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Square70x70Logo.scale-180.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\StoreLogo.scale-100.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\ti-sensortag-cc2650.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\TileWideLogo310x150.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Wide310x150Logo.scale-100.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Wide310x150Logo.scale-180.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Wide310x150Logo.scale-80.png" />
+  </ItemGroup>
+</Project>

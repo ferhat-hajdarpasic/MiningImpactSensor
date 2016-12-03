@@ -43,12 +43,12 @@ namespace SensorTag
                     }
                     try
                     {
-                        _settings.ShokpodApiLocation = settingsObject.GetNamedString("ShokpodApiLocation");
+                        _settings.ShokpodApiLocation = @"http://shokpod.australiaeast.cloudapp.azure.com:8080"; // settingsObject.GetNamedString("ShokpodApiLocation");
                         _settings.LiveTileUpdatePeriod = (int)settingsObject.GetNamedNumber("LiveTileUpdatePeriod");
                         _settings.ServerImpactThreshhold = settingsObject.GetNamedNumber("ServerImpactThreshhold");
                     } catch(Exception e)
                     {
-                        _settings.ShokpodApiLocation = @"http://localhost:8081";
+                        _settings.ShokpodApiLocation = @"http://shokpod.australiaeast.cloudapp.azure.com:8080";
                         _settings.LiveTileUpdatePeriod = 5;
                         _settings.ServerImpactThreshhold = 10;
                         saveToFile(_settings);
