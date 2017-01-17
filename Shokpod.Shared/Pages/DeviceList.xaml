@@ -3,24 +3,31 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MiningImpactSensor.Pages"
+    xmlns:p="using:MiningImpactSensor.Pages"
     xmlns:c="using:MiningImpactSensor.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="800"
-    d:DesignWidth="400">
+    mc:Ignorable="d">
 
 
     <Grid Background="#ff4d4d4d" HorizontalAlignment="Center">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"  MinHeight="120"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid Background="{StaticResource PageTitleBackgroundColor}">
-            <TextBlock Text="Known And Nearby ShokPods" FontSize="24" Margin="10,10" Foreground="{StaticResource TextForegroundColor}" />
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button Style="{StaticResource BackButtonStyle}" Margin="10,6,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"/>
+                    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Source="ms-appx:///Assets/Logo220x50.png"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBlock Text="Known And Nearby ShokPods" FontSize="24" Margin="10,10" Foreground="{StaticResource TextForegroundColor}" />
+                </StackPanel>
+            </StackPanel>
         </Grid>
 
         <ListView x:Name="SensorList"  Grid.Row="1" SelectionMode="None"

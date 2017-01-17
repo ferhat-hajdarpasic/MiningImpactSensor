@@ -11,25 +11,24 @@
 
     <Grid Background="#ff4d4d4d">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="120"/>
             <RowDefinition/>
-            <RowDefinition Height="Auto" MinHeight="83"/>
+            <RowDefinition Height="Auto" MinHeight="60"/>
         </Grid.RowDefinitions>
 
         <Grid x:Name="TitleGrid" Background="{StaticResource PageTitleBackgroundColor}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Orientation="Horizontal">
-                <Button x:Name="backButton" Click="OnGoBack"
-                    Style="{StaticResource BackButtonStyle}"
-                        Margin="10,6,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"  
-                    />
-                <TextBox x:Name="AssignedToTextBox" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Arnold Swartzennegger" VerticalAlignment="Center" Background="{x:Null}" Width="306" FontSize="24" LostFocus="AssignedToTextBox_LostFocus" Foreground="{StaticResource TextForegroundColor}" BorderThickness="0"/>
-                <Image x:Name="image" HorizontalAlignment="Center" VerticalAlignment="Center" Source="ms-appx:///Assets/Logo220x50.png" Margin="20,0,0,0"/>
-                <TextBox x:Name="LoggedOnTimeTextBox" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Logged on time: 10h 30m" VerticalAlignment="Bottom" Background="{x:Null}" Margin="20,0,0,0" IsReadOnly="True" BorderThickness="0" Foreground="{StaticResource TextForegroundColor}"/>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button x:Name="backButton" Click="OnGoBack" Style="{StaticResource BackButtonStyle}" Margin="10,6,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"/>
+                    <Image x:Name="image" HorizontalAlignment="Center" VerticalAlignment="Center" Source="ms-appx:///Assets/Logo220x50.png"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBox x:Name="AssignedToLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Assigned to:" VerticalAlignment="Center" Background="{x:Null}" FontSize="24" IsReadOnly="True" Foreground="{StaticResource TextForegroundColor}" BorderThickness="0"/>
+                    <TextBox x:Name="AssignedToTextBox" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Arnold Swartzennegger" VerticalAlignment="Center" Background="{x:Null}" Width="306" FontSize="24" LostFocus="AssignedToTextBox_LostFocus" Foreground="{StaticResource TextForegroundColor}" BorderThickness="0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <TextBox x:Name="LoggedOnTimeTextBox" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Logged on time: 10h 30m" VerticalAlignment="Bottom" Background="{x:Null}" IsReadOnly="True" BorderThickness="0" Foreground="{StaticResource TextForegroundColor}"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
 
