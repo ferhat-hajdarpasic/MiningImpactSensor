@@ -84,6 +84,7 @@
     <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod Logo 27112016 001.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod splash page 27112016 001.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\shokpod-icon.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\shokpodSensorBrokenIcon150x150.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\shokpodSensorIcon150x150.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\SmallLogo.scale-100.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\splash1116x540.scale-100.png" />
