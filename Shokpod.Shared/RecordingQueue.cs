@@ -195,7 +195,7 @@ namespace SensorTag
                 MiningImpactSensor.Pages.DevicePage.Debug("Recording acceleration of " + maximumImpact.Value.Acceleration + "G.");
             } else
             {
-                MiningImpactSensor.Pages.DevicePage.Debug(maximumImpact.Value.Acceleration + "G is below threshold of " + serverReportingThreshold + "G, not recording it.");
+                /*MiningImpactSensor.Pages.DevicePage.Debug(maximumImpact.Value.Acceleration + "G is below threshold of " + serverReportingThreshold + "G, not recording it.");*/
             }
             if(result != null)
             {
