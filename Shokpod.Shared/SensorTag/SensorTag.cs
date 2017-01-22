@@ -107,14 +107,13 @@ namespace MiningImpactSensor
                 await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
 
                 var accConfig = accService.GetCharacteristics(new Guid("f000aa82-0451-4000-b000-000000000000"))[0];
-                await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
+                GattCommunicationStatus status = await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
 
                 //var periodConfig = accService.GetCharacteristics(new Guid("f000aa83-0451-4000-b000-000000000000"))[0];
                 //await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
 
-                App.Debug("Connection all good." + DeviceId);
                 StartDeviceConnectionWatcher();
-                result = true;
+                result = status == GattCommunicationStatus.Success;
             }
             else
             {
@@ -122,9 +121,16 @@ namespace MiningImpactSensor
                 result = false;
             }
             this.Connected = result;
-            this.DateTimeConnected = DateTime.Now;
-            PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
-            persistedDevices.saveDevice(this);
+            if(this.Connected)
+            {
+                App.Debug("Connection all good." + DeviceId);
+                this.DateTimeConnected = DateTime.Now;
+                PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
+                persistedDevices.saveDevice(this);
+            } else
+            {
+                App.Debug("Could not connect to." + DeviceId);
+            }
             return result;
         }
 

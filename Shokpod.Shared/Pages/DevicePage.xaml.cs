@@ -20,6 +20,8 @@ namespace MiningImpactSensor.Pages
     public sealed partial class DevicePage : Page
     {
         private static string CURRENT_IMPACT = "Current Impact";
+        private static string CANT_CONNECT= "Can't Connect";
+
         ObservableCollection<TileModel> tiles = new ObservableCollection<TileModel>();
         LiveTileUpdater liveTileUpdater;
         DispatcherTimer loggedOnIndicatorTimer;
@@ -42,10 +44,14 @@ namespace MiningImpactSensor.Pages
             ((App)Application.Current).SensorTag.MovementDataChanged += OnMovementMeasurementValueChanged;
 
             Boolean success = await ((App)Application.Current).SensorTag.ConnectMotionService();
+            this.ProgressRing.IsActive = false;
 
             if(success)
             {
                 AddTile(new TileModel() { Caption = CURRENT_IMPACT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")) });
+            } else
+            {
+                AddTile(new TileModel() { Caption = CANT_CONNECT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorBrokenIcon150x150.png")) });
             }
 
             base.OnNavigatedTo(e);
