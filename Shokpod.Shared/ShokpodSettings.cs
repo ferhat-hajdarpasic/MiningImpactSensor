@@ -15,7 +15,7 @@ namespace SensorTag
         private static string FILE_NAME = "settings.json";
         public string ShokpodApiLocation { get; set; }
         public int LiveTileUpdatePeriod { get; set; }
-        public double ServerImpactThreshhold { get; private set; }
+        public double ServerImpactThreshhold { get; set; }
 
         private static ShokpodSettings _settings = null;
 
@@ -43,11 +43,12 @@ namespace SensorTag
                     }
                     try
                     {
-                        _settings.ShokpodApiLocation = @"http://shokpod.australiaeast.cloudapp.azure.com:8080"; // settingsObject.GetNamedString("ShokpodApiLocation");
+                        _settings.ShokpodApiLocation = settingsObject.GetNamedString("ShokpodApiLocation");
                         _settings.LiveTileUpdatePeriod = (int)settingsObject.GetNamedNumber("LiveTileUpdatePeriod");
                         _settings.ServerImpactThreshhold = settingsObject.GetNamedNumber("ServerImpactThreshhold");
                     } catch(Exception e)
                     {
+                        App.Debug("Error reading " + FILE_NAME + "." + e.Message);
                         _settings.ShokpodApiLocation = @"http://shokpod.australiaeast.cloudapp.azure.com:8080";
                         _settings.LiveTileUpdatePeriod = 5;
                         _settings.ServerImpactThreshhold = 10;
@@ -64,11 +65,18 @@ namespace SensorTag
 
         public static async void saveToFile(ShokpodSettings _settings)
         {
-            Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-            StorageFile settingsFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.ReplaceExisting);
+            try
+            {
+                Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+                StorageFile settingsFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.ReplaceExisting);
 
-            string json = JsonConvert.SerializeObject(_settings);
-            await FileIO.WriteTextAsync(settingsFile, json);
+                string json = JsonConvert.SerializeObject(_settings);
+                App.Debug(json);
+                await FileIO.WriteTextAsync(settingsFile, json);
+            } catch(Exception e)
+            {
+                App.Debug("Error saving " + FILE_NAME + "." + e.Message);
+            }
         }
     }
 }

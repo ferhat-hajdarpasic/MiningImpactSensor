@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <StoreAssociation xmlns="http://schemas.microsoft.com/appx/2010/storeassociation">
-  <Publisher>CN=ferha</Publisher>
+  <Publisher>CN=057A034A-9706-48E3-9094-C81B85ADDAFD</Publisher>
   <PublisherDisplayName>White Spider</PublisherDisplayName>
   <GeneratePackageHash>http://www.w3.org/2001/04/xmlenc#sha256</GeneratePackageHash>
   <SupportedLocales>
@@ -358,28 +358,14 @@
     <Language Code="zu-za" InMinimumRequirementSet="true" />
   </SupportedLocales>
   <ProductReservedInfo>
-    <MainPackageIdentityName>WhiteSpider.Shokpod</MainPackageIdentityName>
+    <MainPackageIdentityName>48569WhiteSpider.Shokpod</MainPackageIdentityName>
     <ReservedNames>
       <ReservedName>Shokpod</ReservedName>
     </ReservedNames>
   </ProductReservedInfo>
   <AccountPackageIdentityNames>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.BLEWifiHub</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.FoscamExplorer</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.FunChores</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.HollyCompanion</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.MagicLEDLights</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.PittsburghPhoneDemo</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.SecurePasswordVault</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.SeismographTablet</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.Sensay</MainPackageIdentityName>
-    <MainPackageIdentityName>WhiteSpider.Shokpod.TimesTablesSpeedTest</MainPackageIdentityName>
+    <MainPackageIdentityName>48569WhiteSpider.TestFerhat</MainPackageIdentityName>
+    <MainPackageIdentityName>48569WhiteSpider.ZipWiFiConfigurator</MainPackageIdentityName>
   </AccountPackageIdentityNames>
-  <PackageInfoList LandingUrl="https://dev.windows.com/dashboard/Application?appId=9NBLGGH0MQ6H">
-    <PackageInfo>
-      <OsMinVersion>6.3.0.0</OsMinVersion>
-      <PackageArchitecture>neutral</PackageArchitecture>
-      <PackageMaxArchitectureVersion>1.2.0.5</PackageMaxArchitectureVersion>
-    </PackageInfo>
-  </PackageInfoList>
+  <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9N72V30ZKGDM" />
 </StoreAssociation>

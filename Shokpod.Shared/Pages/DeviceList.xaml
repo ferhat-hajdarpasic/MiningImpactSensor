@@ -8,6 +8,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style x:Key="TextBlockStyle1" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+        </Style>
+        <Style x:Key="TextBoxStyle1" TargetType="TextBox">
+            <Setter Property="Background" Value="#ffffffff"/>
+            <Setter Property="Foreground" Value="#FF7BC143"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="300"/>
+        </Style>
+    </UserControl.Resources>
 
 
     <Grid Background="#ff4d4d4d" HorizontalAlignment="Center">
@@ -23,9 +35,32 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button Style="{StaticResource BackButtonStyle}" Margin="10,6,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"/>
                     <Image HorizontalAlignment="Center" VerticalAlignment="Center" Source="ms-appx:///Assets/Logo220x50.png"/>
+                    <Button Content="Settings" Click="Button_Click_1">
+                        <Button.Flyout>
+                            <Flyout Closed="Flyout_Closed">
+                                <StackPanel Background="{StaticResource PageTitleBackgroundColor}">
+                                    <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="140"/>
+                                        <ColumnDefinition Width="300"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="API location" Style="{StaticResource TextBlockStyle1}" Grid.Row="0" Grid.Column="0" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Threshold [G]" Style="{StaticResource TextBlockStyle1}" Grid.Row="2" Grid.Column="0" Margin="0,0,0,0"/>
+                                    <TextBox Name="ApiLocation" Style="{StaticResource TextBoxStyle1}" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5"/>
+                                    <TextBox Name="ThresholdG" Style="{StaticResource TextBoxStyle1}" Grid.Row="2" Grid.Column="1" Margin="5,0,5,5"/>
+                                </Grid>
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock Text="Known And Nearby ShokPods" FontSize="24" Margin="10,10" Foreground="{StaticResource TextForegroundColor}" />
+                    <TextBlock Text="Known And Nearby ShokPods" Margin="10,10"/>
                 </StackPanel>
             </StackPanel>
         </Grid>

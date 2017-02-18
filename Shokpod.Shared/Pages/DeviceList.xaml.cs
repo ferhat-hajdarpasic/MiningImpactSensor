@@ -145,5 +145,20 @@ namespace MiningImpactSensor.Pages
         {
             Scan();
         }
+
+        private async void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            ShokpodSettings settings = await ShokpodSettings.getSettings();
+            this.ApiLocation.Text = settings.ShokpodApiLocation;
+            this.ThresholdG.Text = "" + settings.ServerImpactThreshhold;
+        }
+
+        private async void Flyout_Closed(object sender, object e)
+        {
+            ShokpodSettings settings = await ShokpodSettings.getSettings();
+            settings.ShokpodApiLocation = this.ApiLocation.Text;
+            settings.ServerImpactThreshhold = Convert.ToDouble(this.ThresholdG.Text);
+            ShokpodSettings.saveToFile(settings);
+        }
     }
 }
