@@ -43,6 +43,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition/>
                                         <RowDefinition/>
+                                        <RowDefinition/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="140"/>
@@ -50,9 +51,11 @@
                                     </Grid.ColumnDefinitions>
 
                                     <TextBlock Text="API location" Style="{StaticResource TextBlockStyle1}" Grid.Row="0" Grid.Column="0" Margin="0,0,0,5"/>
-                                    <TextBlock Text="Threshold [G]" Style="{StaticResource TextBlockStyle1}" Grid.Row="2" Grid.Column="0" Margin="0,0,0,0"/>
+                                    <TextBlock Text="Threshold [G]" Style="{StaticResource TextBlockStyle1}" Grid.Row="1" Grid.Column="0" Margin="0,0,0,0"/>
+                                    <TextBlock Text="Display G" Style="{StaticResource TextBlockStyle1}" Grid.Row="2" Grid.Column="0" Margin="0,0,0,0"/>
                                     <TextBox Name="ApiLocation" Style="{StaticResource TextBoxStyle1}" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5"/>
-                                    <TextBox Name="ThresholdG" Style="{StaticResource TextBoxStyle1}" Grid.Row="2" Grid.Column="1" Margin="5,0,5,5"/>
+                                    <TextBox Name="ThresholdG" Style="{StaticResource TextBoxStyle1}" Grid.Row="1" Grid.Column="1" Margin="5,0,5,5"/>
+                                    <CheckBox Name="DisplayG" Grid.Row="2" Grid.Column="1" Margin="5,0,5,5"/>
                                 </Grid>
                                 </StackPanel>
                             </Flyout>

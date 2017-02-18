@@ -26,6 +26,7 @@ namespace MiningImpactSensor.Pages
         LiveTileUpdater liveTileUpdater;
         DispatcherTimer loggedOnIndicatorTimer;
         private static DevicePage SelectedDevicePage;
+        private ShokpodSettings shokpodSettings;
 
         public DevicePage()
         {
@@ -53,6 +54,7 @@ namespace MiningImpactSensor.Pages
             {
                 AddTile(new TileModel() { Caption = CANT_CONNECT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorBrokenIcon150x150.png")) });
             }
+            this.shokpodSettings = ShokpodSettings.getSettings().Result;
 
             base.OnNavigatedTo(e);
         }
@@ -84,11 +86,14 @@ namespace MiningImpactSensor.Pages
 
         private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs movementData)
         {
-            var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
+            if (shokpodSettings.DisplayAcceleration)
             {
-                string caption = Math.Round(movementData.Total, 2) + "G. [" + Math.Round(movementData.X, 2) + "," + Math.Round(movementData.Y, 2) + "," + Math.Round(movementData.Z, 2) + "]";
-                setCurrentImpct(caption);
-            }));
+                var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
+                {
+                    string caption = Math.Round(movementData.Total, 2) + "G. [" + Math.Round(movementData.X, 2) + "," + Math.Round(movementData.Y, 2) + "," + Math.Round(movementData.Z, 2) + "]";
+                    setCurrentImpct(caption);
+                }));
+            }
 
             PostAsJsonAsync(movementData);
         }

@@ -151,6 +151,7 @@ namespace MiningImpactSensor.Pages
             ShokpodSettings settings = await ShokpodSettings.getSettings();
             this.ApiLocation.Text = settings.ShokpodApiLocation;
             this.ThresholdG.Text = "" + settings.ServerImpactThreshhold;
+            this.DisplayG.IsChecked = settings.DisplayAcceleration;
         }
 
         private async void Flyout_Closed(object sender, object e)
@@ -158,6 +159,7 @@ namespace MiningImpactSensor.Pages
             ShokpodSettings settings = await ShokpodSettings.getSettings();
             settings.ShokpodApiLocation = this.ApiLocation.Text;
             settings.ServerImpactThreshhold = Convert.ToDouble(this.ThresholdG.Text);
+            settings.DisplayAcceleration = Convert.ToBoolean(this.DisplayG.IsChecked);
             ShokpodSettings.saveToFile(settings);
         }
     }

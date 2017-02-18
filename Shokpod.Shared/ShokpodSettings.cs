@@ -15,6 +15,7 @@ namespace SensorTag
         private static string FILE_NAME = "settings.json";
         public string ShokpodApiLocation { get; set; }
         public int LiveTileUpdatePeriod { get; set; }
+        public bool DisplayAcceleration { get; set; }
         public double ServerImpactThreshhold { get; set; }
 
         private static ShokpodSettings _settings = null;
@@ -46,12 +47,14 @@ namespace SensorTag
                         _settings.ShokpodApiLocation = settingsObject.GetNamedString("ShokpodApiLocation");
                         _settings.LiveTileUpdatePeriod = (int)settingsObject.GetNamedNumber("LiveTileUpdatePeriod");
                         _settings.ServerImpactThreshhold = settingsObject.GetNamedNumber("ServerImpactThreshhold");
+                        _settings.DisplayAcceleration = settingsObject.GetNamedBoolean("DisplayAcceleration");
                     } catch(Exception e)
                     {
                         App.Debug("Error reading " + FILE_NAME + "." + e.Message);
                         _settings.ShokpodApiLocation = @"http://shokpod.australiaeast.cloudapp.azure.com:8080";
                         _settings.LiveTileUpdatePeriod = 5;
                         _settings.ServerImpactThreshhold = 10;
+                        _settings.DisplayAcceleration = false;
                         saveToFile(_settings);
                     }
                 }
