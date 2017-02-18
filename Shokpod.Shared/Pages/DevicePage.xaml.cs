@@ -26,7 +26,7 @@ namespace MiningImpactSensor.Pages
         LiveTileUpdater liveTileUpdater;
         DispatcherTimer loggedOnIndicatorTimer;
         private static DevicePage SelectedDevicePage;
-        private ShokpodSettings shokpodSettings;
+        private bool displayAcceleration;
 
         public DevicePage()
         {
@@ -54,7 +54,7 @@ namespace MiningImpactSensor.Pages
             {
                 AddTile(new TileModel() { Caption = CANT_CONNECT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorBrokenIcon150x150.png")) });
             }
-            this.shokpodSettings = ShokpodSettings.getSettings().Result;
+            this.displayAcceleration = ShokpodSettings.getSettings().Result.DisplayAcceleration;
 
             base.OnNavigatedTo(e);
         }
@@ -86,7 +86,7 @@ namespace MiningImpactSensor.Pages
 
         private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs movementData)
         {
-            if (shokpodSettings.DisplayAcceleration)
+            if (this.displayAcceleration)
             {
                 var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
                 {
