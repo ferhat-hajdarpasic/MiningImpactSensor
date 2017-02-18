@@ -68,21 +68,36 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)Assets\Accelerometer.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Accelerometer248x120.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Accelerometer24x24.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Accelerometer33x33.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Accelerometer43x43.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Accelerometer558x270.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\BadgeLogo.scale-100.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\BadgeLogo.scale-140.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\BadgeLogo.scale-180.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Buttons.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Eye.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Eye126x126.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Logo.scale-100.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo1-44x44.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo106x106.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo120x120.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo150x150.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo170x170.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Logo220x50.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Logo248x120.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Logo30x30.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo360x360.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo50x50.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Logo558x270.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Logo71x71.scale-100.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod background 27112016 001.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod icon 27112016 001.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod Logo 27112016 001.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod splash page 27112016 001.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod-splash-1152x1920.png" />
+    <Content Include="$(MSBuildThisFileDirectory)Assets\Shockpod-splash1152x.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\shokpod-icon.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\shokpodSensorBrokenIcon150x150.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\shokpodSensorIcon150x150.png" />
@@ -100,5 +115,8 @@
     <Content Include="$(MSBuildThisFileDirectory)Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Wide310x150Logo.scale-180.png" />
     <Content Include="$(MSBuildThisFileDirectory)Assets\Wide310x150Logo.scale-80.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Assets\Thumbs.db" />
   </ItemGroup>
 </Project>

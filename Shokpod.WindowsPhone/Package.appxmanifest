@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:m3="http://schemas.microsoft.com/appx/2014/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest">
-  <Identity Name="48569WhiteSpider.Shokpod" Publisher="CN=057A034A-9706-48E3-9094-C81B85ADDAFD" Version="1.1.0.18" />
+  <Identity Name="48569WhiteSpider.Shokpod" Publisher="CN=057A034A-9706-48E3-9094-C81B85ADDAFD" Version="1.1.0.29" />
   <mp:PhoneIdentity PhoneProductId="33700be6-0a59-4693-b6f9-3fb2bddc4883" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Shokpod</DisplayName>
@@ -16,10 +16,9 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Shokpod.WindowsPhone.App">
-      <m3:VisualElements DisplayName="Shokpod.WindowsPhone" Square150x150Logo="Assets\Square150x150Logo.png" Description="Shokpod.WindowsPhone" ForegroundText="light" BackgroundColor="transparent" Square44x44Logo="Assets\Square44x44Logo.png">
-        <m3:DefaultTile Square71x71Logo="Assets\Square71x71Logo.png">
+      <m3:VisualElements DisplayName="Shokpod.WindowsPhone" Description="Shokpod.WindowsPhone" ForegroundText="light" BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png">
+        <m3:DefaultTile Square71x71Logo="Assets\Logo71x71.png">
         </m3:DefaultTile>
-        <m3:SplashScreen Image="Assets\SplashScreen.png" />
       </m3:VisualElements>
     </Application>
   </Applications>
