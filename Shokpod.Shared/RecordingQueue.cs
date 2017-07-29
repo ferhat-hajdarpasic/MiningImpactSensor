@@ -1,5 +1,5 @@
 ﻿using MiningImpactSensor;
-using Newtonsoft.Json;
+using Shokpod10;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.System.Threading;
+using Newtonsoft.Json;
 
 namespace SensorTag
 {
