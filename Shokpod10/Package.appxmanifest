@@ -1,49 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
-<Package
-  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
-  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  IgnorableNamespaces="uap mp">
-
-  <Identity
-    Name="7d2b0793-95bb-47f0-a21d-0c38c4cb2a97"
-    Publisher="CN=ferha"
-    Version="1.0.0.0" />
-
-  <mp:PhoneIdentity PhoneProductId="7d2b0793-95bb-47f0-a21d-0c38c4cb2a97" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
-
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
+  <Identity Name="7d2b0793-95bb-47f0-a21d-0c38c4cb2a97" Publisher="CN=ferha" Version="1.0.0.0" />
+  <mp:PhoneIdentity PhoneProductId="7d2b0793-95bb-47f0-a21d-0c38c4cb2a97" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Shokpod10</DisplayName>
     <PublisherDisplayName>ferha</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
-
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
   </Dependencies>
-
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="x-generate" />
   </Resources>
-
   <Applications>
-    <Application Id="App"
-      Executable="$targetnametoken$.exe"
-      EntryPoint="Shokpod10.App">
-      <uap:VisualElements
-        DisplayName="Shokpod10"
-        Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="Shokpod10"
-        BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="Shokpod10.App">
+      <uap:VisualElements DisplayName="Shokpod10" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="Shokpod10" BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
+        </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
     </Application>
   </Applications>
-
   <Capabilities>
-    <Capability Name="internetClient" />
+    <Capability Name="internetClientServer" />
+    <Capability Name="privateNetworkClientServer" />
+    <DeviceCapability Name="bluetooth.genericAttributeProfile">
+      <Device Id="any">
+        <Function Type="name:battery" />
+        <Function Type="serviceId:f000aa00-0451-4000-b000-000000000000" />
+        <Function Type="serviceId:f000aa10-0451-4000-b000-000000000000" />
+        <Function Type="serviceId:f000aa20-0451-4000-b000-000000000000" />
+        <Function Type="serviceId:f000aa30-0451-4000-b000-000000000000" />
+        <Function Type="serviceId:f000aa40-0451-4000-b000-000000000000" />
+        <Function Type="serviceId:f000aa50-0451-4000-b000-000000000000" />
+        <Function Type="serviceId:f000aa80-0451-4000-b000-000000000000" />
+        <Function Type="serviceId:0000ffe0-0000-1000-8000-00805f9b34fb" />
+        <Function Type="serviceId:00001800-0000-1000-8000-00805f9b34fb" />
+        <Function Type="serviceId:00001801-0000-1000-8000-00805f9b34fb" />
+        <Function Type="serviceId:0000180A-0000-1000-8000-00805f9b34fb" />
+      </Device>
+    </DeviceCapability>
   </Capabilities>
 </Package>
