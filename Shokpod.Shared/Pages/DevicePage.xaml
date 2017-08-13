@@ -26,16 +26,25 @@
 
         <Grid x:Name="TitleGrid" Background="{StaticResource PageTitleBackgroundColor}">
             <StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button x:Name="backButton" Click="OnGoBack" Style="{StaticResource BackButtonStyle}" Margin="10,6,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"/>
-                    <Image x:Name="image" HorizontalAlignment="Center" VerticalAlignment="Center" Source="ms-appx:///Assets/Logo220x50.png"/>
-                </StackPanel>
+                <Grid Height="50">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" x:Name="backButton" Click="OnGoBack" Height="50" Margin="10,0,0,0" Width="48" >
+                        <SymbolIcon Symbol="Back" Foreground="{StaticResource TextForegroundColor}"/>
+                    </Button>
+                    <Image Grid.Column="1" Source="ms-appx:///Assets/Logo220x50.png"/>
+                </Grid>
+                
+                
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <TextBox x:Name="AssignedToLabel" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Assigned to:" VerticalAlignment="Center" Background="{x:Null}" FontSize="24" IsReadOnly="True" Foreground="{StaticResource TextForegroundColor}" BorderThickness="0"/>
                     <TextBox x:Name="AssignedToTextBox" HorizontalAlignment="Left" Text="Arnold Swartzennegger" VerticalAlignment="Center" FontSize="24" LostFocus="AssignedToTextBox_LostFocus" Style="{StaticResource TextBoxStyle1}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBox x:Name="LoggedOnTimeTextBox" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Logged on time: 10h 30m" VerticalAlignment="Bottom" Background="{x:Null}" IsReadOnly="True" BorderThickness="0" Foreground="{StaticResource TextForegroundColor}"/>
+                    <TextBox x:Name="LoggedOnTimeTextBox" TextWrapping="Wrap" Text="Logged on time: [not connected]" Background="{x:Null}" IsReadOnly="True" BorderThickness="0" Foreground="{StaticResource TextForegroundColor}" VerticalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
@@ -58,7 +67,7 @@
         <StackPanel Orientation="Vertical" Grid.Row="2">
             <ProgressRing Name="ProgressRing" IsActive="true" HorizontalAlignment="Center" Width="50" Height="50" Background="{x:Null}"/>
             <TextBlock x:Name="DebugMessage" Text="" FontSize="24" Margin="10" TextWrapping="Wrap" HorizontalAlignment="Center"/>
-            <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36" Click="button_Click"/>
+            <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="{StaticResource TextForegroundColor}" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36" Click="button_Click"/>
         </StackPanel>
     </Grid>
 </Page>

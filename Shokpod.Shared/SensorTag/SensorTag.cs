@@ -167,8 +167,11 @@ namespace MiningImpactSensor
             {
                 await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
             }
-            accService.Dispose();
-            accService = null;
+            if (accService != null)
+            {
+                accService.Dispose();
+                accService = null;
+            }
             characteristic = null;
             GC.Collect();
         }

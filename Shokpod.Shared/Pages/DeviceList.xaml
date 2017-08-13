@@ -22,7 +22,7 @@
     </UserControl.Resources>
 
 
-    <Grid Background="#ff4d4d4d" HorizontalAlignment="Center">
+    <Grid Background="#ff4d4d4d">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"  MinHeight="120"/>
@@ -32,38 +32,43 @@
 
         <Grid Background="{StaticResource PageTitleBackgroundColor}">
             <StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Style="{StaticResource BackButtonStyle}" Margin="10,6,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"/>
-                    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Source="ms-appx:///Assets/Logo220x50.png"/>
-                    <Button Content="Settings" Click="Button_Click_1">
+                <Grid Height="50">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Click="Button_Click_1" Foreground="{StaticResource TextForegroundColor}" Height="50" Margin="10,0,0,0" Width="48">
+                        <SymbolIcon Grid.Column="2" Symbol="Setting" />
                         <Button.Flyout>
                             <Flyout Closed="Flyout_Closed">
                                 <StackPanel Background="{StaticResource PageTitleBackgroundColor}">
                                     <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="140"/>
-                                        <ColumnDefinition Width="300"/>
-                                    </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="300"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <TextBlock Text="API location" Style="{StaticResource TextBlockStyle1}" Grid.Row="0" Grid.Column="0" Margin="0,0,0,5"/>
-                                    <TextBlock Text="Threshold [G]" Style="{StaticResource TextBlockStyle1}" Grid.Row="1" Grid.Column="0" Margin="0,0,0,0"/>
-                                    <TextBlock Text="Display G" Style="{StaticResource TextBlockStyle1}" Grid.Row="2" Grid.Column="0" Margin="0,0,0,0"/>
-                                    <TextBox Name="ApiLocation" Style="{StaticResource TextBoxStyle1}" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5"/>
-                                    <TextBox Name="ThresholdG" Style="{StaticResource TextBoxStyle1}" Grid.Row="1" Grid.Column="1" Margin="5,0,5,5"/>
-                                    <CheckBox Name="DisplayG" Grid.Row="2" Grid.Column="1" Margin="5,0,5,5"/>
-                                </Grid>
+                                        <TextBlock Text="API location" Style="{StaticResource TextBlockStyle1}" Grid.Row="0" Grid.Column="0" Margin="0,0,0,5"/>
+                                        <TextBlock Text="Threshold [G]" Style="{StaticResource TextBlockStyle1}" Grid.Row="1" Grid.Column="0" Margin="0,0,0,0"/>
+                                        <TextBlock Text="Display G" Style="{StaticResource TextBlockStyle1}" Grid.Row="2" Grid.Column="0" Margin="0,0,0,0"/>
+                                        <TextBox Name="ApiLocation" Style="{StaticResource TextBoxStyle1}" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5"/>
+                                        <TextBox Name="ThresholdG" Style="{StaticResource TextBoxStyle1}" Grid.Row="1" Grid.Column="1" Margin="5,0,5,5"/>
+                                        <CheckBox Name="DisplayG" Grid.Row="2" Grid.Column="1" Margin="5,0,5,5"/>
+                                    </Grid>
                                 </StackPanel>
                             </Flyout>
                         </Button.Flyout>
                     </Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBlock Text="Known And Nearby ShokPods" Margin="10,10"/>
+                    <Image Grid.Column="1" Source="ms-appx:///Assets/Logo220x50.png"/>
+                </Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="50">
+                    <TextBlock Text="Known And Nearby ShokPods" Margin="10,10" Foreground="{StaticResource TextForegroundColor}"/>
                 </StackPanel>
             </StackPanel>
         </Grid>
@@ -88,15 +93,9 @@
         <RichTextBlock x:Name="Help" Grid.Row="1" Margin="10" FontSize="18"  Visibility="Collapsed">
             <Paragraph>
                 This app is designed to work with the Texas Instruments
-                <Hyperlink NavigateUri="http://www.ti.com/tool/cc2541dk-sensor">
+                <Hyperlink NavigateUri="http://www.cocreators.com.au/contact.htm">
                     <Run>
-                        CC2541 SensorTag
-                    </Run>
-                </Hyperlink> and
-
-                <Hyperlink NavigateUri="http://www.ti.com/tool/cc2650stk">
-                    <Run>
-                        CC2650 SensorTag
+                        Shokpod
                     </Run>
                 </Hyperlink>
                 device.  If you have one of these devices please pair it with this machine
@@ -114,6 +113,6 @@
                 </InlineUIContainer>
             </Paragraph>
         </RichTextBlock>
-        <Button x:Name="button" Content="SCAN" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Stretch" Width="1352" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="7" FontSize="36" Click="button_Click"/>
+        <Button x:Name="button" Content="SCAN" Grid.Row="2" VerticalAlignment="Stretch" Foreground="{StaticResource TextForegroundColor}" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="7" FontSize="36" Click="button_Click" HorizontalAlignment="Stretch"/>
     </Grid>
 </UserControl>

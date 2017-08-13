@@ -249,7 +249,7 @@ namespace MiningImpactSensor.Pages
                 }
                 else
                 {
-                    this.LoggedOnTimeTextBox.Text = "Logged on time: " + "<not connected>";
+                    this.LoggedOnTimeTextBox.Text = "Logged on time: " + "[not connected]";
                 }
             };
             loggedOnIndicatorTimer.Interval = new TimeSpan(0, 0, 1);
