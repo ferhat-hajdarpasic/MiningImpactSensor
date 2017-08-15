@@ -120,6 +120,7 @@ namespace SensorTag
                                 });
                                 App.Debug(pushServerResponse.data);
                                 MiningImpactSensor.Pages.DevicePage.Debug("Persisted acceleration of " + record.Recording[0].Value.Acceleration + "G.");
+                                MetroEventSource.ToastAsync("Persisted acceleration of " + record.Recording[0].Value.Acceleration + "G.");
                             }
                             else
                             {

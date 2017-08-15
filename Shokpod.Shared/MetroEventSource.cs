@@ -4,6 +4,8 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Data.Xml.Dom;
+using Windows.UI.Notifications;
 
 namespace SensorTag
 {
@@ -40,5 +42,30 @@ namespace SensorTag
         {
             this.WriteEvent(5, message);
         }
+        public static async Task ToastAsync(string msg)
+        {
+            ShokpodSettings settings = await ShokpodSettings.getSettings();
+            if (settings.DisplayAcceleration)
+            {
+                string xml = $@"
+                <toast activationType='foreground' launch='args'>
+                    <visual>
+                        <binding template='ToastGeneric'>
+                            <text>This is a toast notification</text>
+                            <text>{msg}</text>
+                        </binding>
+                    </visual>
+                </toast>";
+
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(xml);
+
+                ToastNotification notification = new ToastNotification(doc);
+                ToastNotifier notifier = ToastNotificationManager.CreateToastNotifier();
+                notifier.Show(notification);
+            }
+        }
+
+
     }
 }

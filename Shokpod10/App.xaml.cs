@@ -26,6 +26,7 @@ namespace Shokpod10
     sealed partial class App : Application
     {
         MiningImpactSensor.SensorTag _sensor;
+        ExtendedExecutionSession extendedExecutionSession;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -81,15 +82,29 @@ namespace Shokpod10
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
+            //TODO: Save application state and stop any background activity
+            this.extendedExecutionSession = new ExtendedExecutionSession()
+            {
+                Reason = ExtendedExecutionReason.Unspecified,
+                Description = "Keep Shokpod in background"
+            };
 
-            var extendedExecutionSession = new ExtendedExecutionSession();
-            extendedExecutionSession.Reason = ExtendedExecutionReason.Unspecified;
-            var extendedExecutionResult = await extendedExecutionSession.RequestExtensionAsync();
+            this.extendedExecutionSession.Revoked += ExtendedExecutionSession_Revoked;
+            ExtendedExecutionResult extendedExecutionResult = await this.extendedExecutionSession.RequestExtensionAsync();
             if (extendedExecutionResult != ExtendedExecutionResult.Allowed)
             {
-                extendedExecutionSession.Dispose();
-                extendedExecutionSession = null;
+                this.extendedExecutionSession.Dispose();
+                this.extendedExecutionSession = null;
+                MetroEventSource.ToastAsync("Request for background execution denied!");
+            } else
+            {
+                MetroEventSource.ToastAsync("Request for background execution granted!");
             }
+        }
+
+        private void ExtendedExecutionSession_Revoked(object sender, ExtendedExecutionRevokedEventArgs args)
+        {
+            MetroEventSource.ToastAsync("ExtendedExecutionSession Revoked!");
         }
 
         /// <summary>
@@ -111,10 +126,11 @@ namespace Shokpod10
         /// <param name="e">Details about the suspend request.</param>
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
-            var deferral = e.SuspendingOperation.GetDeferral();
-            //TODO: Save application state and stop any background activity
+            SuspendingDeferral deferral = e.SuspendingOperation.GetDeferral();
+            MetroEventSource.ToastAsync("Shokpod suspended!");
             deferral.Complete();
         }
+
         public static void Debug(string v)
         {
             MetroEventSource.Log.Debug(v);
@@ -128,6 +144,7 @@ namespace Shokpod10
             get { return _sensor; }
             set { _sensor = value; }
         }
+
         public static void SetSelectedSensorTag(MiningImpactSensor.SensorTag sensor)
         {
             ((App)Application.Current).SensorTag = sensor;
