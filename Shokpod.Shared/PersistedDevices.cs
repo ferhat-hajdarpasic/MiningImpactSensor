@@ -72,12 +72,18 @@ namespace SensorTag
 
         private async void saveToFile(List<PersistedDevice> _devices)
         {
-            Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-            StorageFile devicesFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.ReplaceExisting);
+            try
+            {
+                Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+                StorageFile devicesFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.ReplaceExisting);
 
-            string json = JsonConvert.SerializeObject(_devices);
-            await FileIO.WriteTextAsync(devicesFile, json);
-            devices = _devices;
+                string json = JsonConvert.SerializeObject(_devices);
+                await FileIO.WriteTextAsync(devicesFile, json);
+                devices = _devices;
+            } catch (System.IO.IOException e)
+            {
+                MetroEventSource.ToastAsync("Cannot save configuration! " + e.Message);
+            }
         }
 
         public string getAssignedToName(string deviceAddress)
