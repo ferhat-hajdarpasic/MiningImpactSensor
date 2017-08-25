@@ -53,7 +53,7 @@ namespace SensorTag
                     {
                         App.Debug("Error reading " + FILE_NAME + "." + e.Message);
                         //_settings.ShokpodApiLocation = @"http://shokpod.australiaeast.cloudapp.azure.com:8080";
-                        _settings.ShokpodApiLocation = @"http://10.10.47.20";
+                        _settings.ShokpodApiLocation = @"http://10.10.47.13:8080";
                         
                         _settings.LiveTileUpdatePeriod = 5;
                         _settings.ServerImpactThreshhold = 10;
