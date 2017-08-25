@@ -42,7 +42,7 @@ namespace SensorTag
         {
             this.WriteEvent(5, message);
         }
-        public static async Task ToastAsync(string msg)
+        public static async void ToastAsync(string msg)
         {
             ShokpodSettings settings = await ShokpodSettings.getSettings();
             if (settings.DisplayAcceleration)

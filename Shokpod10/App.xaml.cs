@@ -1,22 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.ExtendedExecution;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using MiningImpactSensor;
 using SensorTag;
+using System.Threading.Tasks;
+using Windows.UI.Core;
 
 namespace Shokpod10
 {
@@ -82,29 +73,68 @@ namespace Shokpod10
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
-            //TODO: Save application state and stop any background activity
-            this.extendedExecutionSession = new ExtendedExecutionSession()
-            {
-                Reason = ExtendedExecutionReason.Unspecified,
-                Description = "Keep Shokpod in background"
-            };
 
-            this.extendedExecutionSession.Revoked += ExtendedExecutionSession_Revoked;
-            ExtendedExecutionResult extendedExecutionResult = await this.extendedExecutionSession.RequestExtensionAsync();
-            if (extendedExecutionResult != ExtendedExecutionResult.Allowed)
+            BeginExtendedExecution();
+        }
+
+        void ClearExtendedExecution()
+        {
+            if (extendedExecutionSession != null)
             {
-                this.extendedExecutionSession.Dispose();
-                this.extendedExecutionSession = null;
-                MetroEventSource.ToastAsync("Request for background execution denied!");
-            } else
-            {
-                MetroEventSource.ToastAsync("Request for background execution granted!");
+                extendedExecutionSession.Revoked -= ExtendedExecutionSession_RevokedAsync;
+                extendedExecutionSession.Dispose();
+                extendedExecutionSession = null;
             }
         }
 
-        private void ExtendedExecutionSession_Revoked(object sender, ExtendedExecutionRevokedEventArgs args)
+        private async void BeginExtendedExecution()
         {
-            MetroEventSource.ToastAsync("ExtendedExecutionSession Revoked!");
+            ClearExtendedExecution();
+
+            var newSession = new ExtendedExecutionSession
+            {
+                Reason = ExtendedExecutionReason.Unspecified,
+                Description = "Keep Shokpod running in background"
+            };
+
+            newSession.Revoked += ExtendedExecutionSession_RevokedAsync;
+            ExtendedExecutionResult result = await newSession.RequestExtensionAsync();
+
+            switch (result)
+            {
+                case ExtendedExecutionResult.Allowed:
+                    MetroEventSource.ToastAsync("Request for background execution granted!");
+                    extendedExecutionSession = newSession;
+                    break;
+
+                default:
+                case ExtendedExecutionResult.Denied:
+                    MetroEventSource.ToastAsync("Request for background execution denied!");
+                    newSession.Dispose();
+                    break;
+            }
+        }
+
+        private async void ExtendedExecutionSession_RevokedAsync(object sender, ExtendedExecutionRevokedEventArgs args)
+        {
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                switch (args.Reason)
+                {
+                    case ExtendedExecutionRevokedReason.Resumed:
+                        MetroEventSource.ToastAsync("Extended execution revoked due to returning to foreground.");
+                        BeginExtendedExecution();
+                        break;
+
+                    case ExtendedExecutionRevokedReason.SystemPolicy:
+                        MetroEventSource.ToastAsync("Extended execution revoked due to system policy.");
+                        ClearExtendedExecution();
+                        break;
+                    default:
+                        ClearExtendedExecution();
+                        break;
+                }
+            });
         }
 
         /// <summary>
