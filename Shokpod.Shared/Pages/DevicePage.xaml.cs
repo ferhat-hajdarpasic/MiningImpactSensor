@@ -5,6 +5,7 @@ using Shokpod10;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -37,31 +38,51 @@ namespace MiningImpactSensor.Pages
 
         }
 
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            ConnectToSelectedDevice(e);
+            //ConnectAsSensorTag(e);
+            base.OnNavigatedTo(e);
+        }
+
+        public async void ConnectToSelectedDevice(NavigationEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Entering");
+            GattSampleContext.Context.StopEnumeration();
+
+
+            ObservableBluetoothLEDevice SelectedDevice = e.Parameter as ObservableBluetoothLEDevice;
+            System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Trying to connect to " + SelectedDevice.Name);
+
+            if (await SelectedDevice.Connect() == false)
+            {
+                System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Something went wrong getting the BluetoothLEDevice");
+                SelectedDevice = null;
+                //NavigationService.Navigate(typeof(Views.Discover));
+                return;
+            }
+
+            System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Going to Device Service Page");
+            System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Exiting");
+        }
+
+        private void ConnectAsSensorTag(NavigationEventArgs e)
         {
             ((App)Application.Current).SensorTag = e.Parameter as SensorTag;
 
             SensorList.ItemsSource = tiles;
 
             ((App)Application.Current).SensorTag.MovementDataChanged += OnMovementMeasurementValueChanged;
+            ((App)Application.Current).SensorTag.OnConnected += OnConnected;
 
-            Boolean success = await ((App)Application.Current).SensorTag.ConnectMotionService();
-            this.ProgressRing.IsActive = false;
+            ((App)Application.Current).SensorTag.ConnectMotionService();
 
-            if(success)
-            {
-                AddTile(new TileModel() { Caption = CURRENT_IMPACT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")) });
-            } else
-            {
-                AddTile(new TileModel() { Caption = CANT_CONNECT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorBrokenIcon150x150.png")) });
-            }
             this.displayAcceleration = ShokpodSettings.getSettings().Result.DisplayAcceleration;
-
-            base.OnNavigatedTo(e);
         }
-
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            //TODO: ((App)Application.Current).SensorTag.MovementDataChanged -= OnMovementMeasurementValueChanged;
+            //TODO: ((App)Application.Current).SensorTag.OnConnected -= OnConnected;
             base.OnNavigatedFrom(e);
         }
 
@@ -97,6 +118,19 @@ namespace MiningImpactSensor.Pages
             }
 
             PostAsJsonAsync(movementData);
+        }
+
+        private void OnConnected(object sender, SensorTag.ConnectedEventArgs args)
+        {
+            this.ProgressRing.IsActive = false;
+            if (args.success)
+            {
+                AddTile(new TileModel() { Caption = CURRENT_IMPACT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")) });
+            }
+            else
+            {
+                AddTile(new TileModel() { Caption = CANT_CONNECT, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorBrokenIcon150x150.png")) });
+            }
         }
 
         private void setCurrentImpct(string caption)
@@ -212,7 +246,7 @@ namespace MiningImpactSensor.Pages
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            this.AssignedToTextBox.Text = App.getSelectedSensorTag().AssignedToName;
+            this.AssignedToTextBox.Text = "HARDCODED"; //App.getSelectedSensorTag().AssignedToName;
             liveTileUpdater = new LiveTileUpdater();
             liveTileUpdater.Start();
             startLoggedOnTimer();

@@ -16,10 +16,11 @@ namespace SensorTag
             string instanceUuid = "";
             string vid = "";
             string pid = "";
-            string MacAddress = "";
+            string MacAddress = info.Id.Substring("BluetoothLE#BluetoothLE".Length).Replace(":", "");
 
             // something like this:
             // \\?\BTHLEDevice#{0000fff0-0000-1000-8000-00805f9b34fb}_Dev_VID&01000d_PID&0000_REV&0110_b4994c5d8fc1#7&2839f98&c&0023#{6e3bb679-4372-40c8-9eaa-4509df260cd8}
+            //"BluetoothLE#BluetoothLEf4:5c:89:b3:ca:72-24:71:89:04:7e:84"
             if (id.StartsWith(@"\\?\BTHLEDevice#"))
             {
                 int i = id.IndexOf('{');

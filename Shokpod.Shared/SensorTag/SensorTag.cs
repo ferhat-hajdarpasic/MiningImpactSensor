@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Enumeration.Pnp;
@@ -95,44 +96,54 @@ namespace MiningImpactSensor
             }
         }
 
-        public async Task<bool> ConnectMotionService()
+        public async void ConnectMotionService()
         {
-            bool result = false;
-            accService = await GattDeviceService.FromIdAsync(this.DeviceId);
-            if (accService != null)
+            BluetoothLEDevice v1 = await BluetoothLEDevice.FromIdAsync(this.DeviceId);
+            App.Debug("Found device" + v1.DeviceId);
+            GattDeviceServicesResult servicesResult = await v1.GetGattServicesForUuidAsync(new Guid("f000aa80-0451-4000-b000-000000000000"));
+            if (servicesResult.Status == GattCommunicationStatus.Success)
             {
-                App.Debug("Found movement service!" + DeviceId);
-                var list = accService.GetCharacteristics(new Guid("f000aa81-0451-4000-b000-000000000000"));
-                characteristic = list.FirstOrDefault();
-                characteristic.ValueChanged += accData_ValueChanged;
-                await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                App.Debug("Found motion service" + servicesResult.Services[0].Uuid);
+                var accService = servicesResult.Services[0];
+                GattCharacteristicsResult gattCharacteristicsResult = await accService.GetCharacteristicsForUuidAsync(new Guid("f000aa81-0451-4000-b000-000000000000"));
+                if (gattCharacteristicsResult.Status == GattCommunicationStatus.Success)
+                {
+                    App.Debug("Found motion characteristics service" + gattCharacteristicsResult.Characteristics[0].Uuid);
+                    characteristic = gattCharacteristicsResult.Characteristics[0];
+                    characteristic.ValueChanged += accData_ValueChanged;
+                    GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                    if (status == GattCommunicationStatus.Success)
+                    {
+                        App.Debug("Registered for motion change notifications.");
+                    } else
+                    {
+                        MetroEventSource.ToastAsync("Communication status = " + status);
+                    }
 
-                var accConfig = accService.GetCharacteristics(new Guid("f000aa82-0451-4000-b000-000000000000"))[0];
-                GattCommunicationStatus status = await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
+                    var accConfig = (await accService.GetCharacteristicsForUuidAsync(new Guid("f000aa82-0451-4000-b000-000000000000"))).Characteristics[0];
+                    status = await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
+                    if(status == GattCommunicationStatus.Success)
+                    {
+                        App.Debug("Configured motion reporting frequency.");
+                    }
+                    else
+                    {
+                        MetroEventSource.ToastAsync("Communication status = " + status);
+                    }
 
-                //var periodConfig = accService.GetCharacteristics(new Guid("f000aa83-0451-4000-b000-000000000000"))[0];
-                //await periodConfig.WriteValueAsync((new byte[] { 100 }).AsBuffer());
-
-                StartDeviceConnectionWatcher();
-                result = status == GattCommunicationStatus.Success;
+                    this.DateTimeConnected = DateTime.Now;
+                    PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
+                    persistedDevices.saveDevice(this);
+                    this.Connected = true;
+                    OnConnected(this, new ConnectedEventArgs { sensorTag = this, success = true });
+                } else
+                {
+                    MetroEventSource.ToastAsync("Characterstics reult = " + gattCharacteristicsResult.Status);
+                }
+            } else {
+                MetroEventSource.ToastAsync("Service reult = " + servicesResult.Status);
             }
-            else
-            {
-                App.Debug("Could not connect to device." + DeviceId);
-                result = false;
-            }
-            this.Connected = result;
-            if(this.Connected)
-            {
-                App.Debug("Connection all good." + DeviceId);
-                this.DateTimeConnected = DateTime.Now;
-                PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
-                persistedDevices.saveDevice(this);
-            } else
-            {
-                App.Debug("Could not connect to." + DeviceId);
-            }
-            return result;
+            OnConnected(this, new ConnectedEventArgs { sensorTag = this, success = false });
         }
 
         private async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
@@ -140,7 +151,8 @@ namespace MiningImpactSensor
             try
             {
                 double SCALE200G = (double)0.049;
-                var data = (await sender.ReadValueAsync()).Value.ToArray();
+                //var data = (await sender.ReadValueAsync()).Value.ToArray();
+                byte[] data = args.CharacteristicValue.ToArray();
                 short x = (short)((data[7] << 8) | data[6]);
                 short y = (short)((data[9] << 8) | data[8]);
                 short z = (short)((data[11] << 8) | data[10]);
@@ -184,6 +196,14 @@ namespace MiningImpactSensor
             public double Total { get { return Math.Round(Math.Sqrt(X*X + Y*Y + Z*Z), 2);} }
         }
 
+        public class ConnectedEventArgs : EventArgs
+        {
+            public SensorTag sensorTag { get; set; }
+            public Boolean success {get; set;}
+        }
+
+
         public event EventHandler<MovementDataChangedEventArgs> MovementDataChanged;
+        public event EventHandler<ConnectedEventArgs> OnConnected;
     }
 }

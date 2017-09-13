@@ -17,12 +17,20 @@
       <DependentUpon>TileControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Controls\TileModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DispatcherService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GattConvert.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GattProtocolErrorParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GattSampleContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GattUuidsService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\IWindowVisibilityWatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LiveTileUpdater.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MetroEventSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MovementMeasurement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MovementRecord.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableBluetoothLEDevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableGattCharacteristics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObservableGattDeviceService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Pages\DeviceList.xaml.cs">
       <DependentUpon>DeviceList.xaml</DependentUpon>
     </Compile>
