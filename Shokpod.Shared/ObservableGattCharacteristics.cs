@@ -253,9 +253,9 @@ namespace SensorTag
             Name = GattUuidsService.ConvertUuidToName(Characteristic.Uuid);
             UUID = Characteristic.Uuid.ToString();
 
-            ReadValueAsync();
+            //await ReadValueAsync();
 
-            characteristic.ValueChanged += Characteristic_ValueChanged;
+            //characteristic.ValueChanged += Characteristic_ValueChanged;
 
             PropertyChanged += ObservableGattCharacteristics_PropertyChanged;
 
@@ -298,7 +298,7 @@ namespace SensorTag
         /// <summary>
         /// Reads the value of the Characteristic
         /// </summary>
-        public async void ReadValueAsync()
+        public async Task<bool> ReadValueAsync()
         {
             try
             {
@@ -307,6 +307,7 @@ namespace SensorTag
                 if (result.Status == GattCommunicationStatus.Success)
                 {
                     SetValue(result.Value);
+                    return true;
                 }
                 else if (result.Status == GattCommunicationStatus.ProtocolError)
                 {
@@ -322,6 +323,7 @@ namespace SensorTag
                 Debug.WriteLine("Exception: " + ex.Message);
                 Value = "Exception!";
             }
+            return false;
         }
 
         /// <summary>

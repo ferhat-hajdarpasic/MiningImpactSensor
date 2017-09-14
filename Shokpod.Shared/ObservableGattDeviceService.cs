@@ -155,7 +155,7 @@ namespace SensorTag
             Service = service;
             Name = GattUuidsService.ConvertUuidToName(service.Uuid);
             UUID = Service.Uuid.ToString();
-            GetAllCharacteristics();
+            //GetAllCharacteristics();
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace SensorTag
         /// <summary>
         /// Gets all the characteristics of this service
         /// </summary>
-        private async void GetAllCharacteristics()
+        public async Task<bool> GetAllCharacteristics()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("ObservableGattDeviceService::getAllCharacteristics: ");
@@ -215,6 +215,7 @@ namespace SensorTag
                     {
                         Characteristics.Add(new ObservableGattCharacteristics(gattchar, this));
                     }
+                    return true;
                 }
                 else if (result.Status == GattCommunicationStatus.Unreachable)
                 {
@@ -235,7 +236,7 @@ namespace SensorTag
                     {
                         Debug.WriteLine("Getting characteristics took too long.");
                         Name += " - Timed out getting some characteristics";
-                        return;
+                        break;
                     }
                 }
             }
@@ -247,8 +248,8 @@ namespace SensorTag
             catch (Exception ex)
             {
                 Debug.WriteLine("getAllCharacteristics: Exception - {0}" + ex.Message);
-                throw;
             }
+            return false;
         }
 
         /// <summary>

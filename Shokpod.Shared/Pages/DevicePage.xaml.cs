@@ -11,11 +11,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-
+using static MiningImpactSensor.SensorTag;
 
 namespace MiningImpactSensor.Pages
 {
@@ -29,6 +30,8 @@ namespace MiningImpactSensor.Pages
         DispatcherTimer loggedOnIndicatorTimer;
         private static DevicePage SelectedDevicePage;
         private bool displayAcceleration;
+        private ObservableGattCharacteristics MotionCharacteristic;
+        private ObservableBluetoothLEDevice SelectedDevice;
 
         public DevicePage()
         {
@@ -51,7 +54,7 @@ namespace MiningImpactSensor.Pages
             GattSampleContext.Context.StopEnumeration();
 
 
-            ObservableBluetoothLEDevice SelectedDevice = e.Parameter as ObservableBluetoothLEDevice;
+            SelectedDevice = e.Parameter as ObservableBluetoothLEDevice;
             System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Trying to connect to " + SelectedDevice.Name);
 
             if (await SelectedDevice.Connect() == false)
@@ -64,6 +67,90 @@ namespace MiningImpactSensor.Pages
 
             System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Going to Device Service Page");
             System.Diagnostics.Debug.WriteLine("ConnectToSelectedDevice: Exiting");
+            this.AssignedToTextBox.Text = "UI Thread";
+            foreach(ObservableGattDeviceService s in SelectedDevice.Services)
+            {
+                if(s.UUID == "f000aa80-0451-4000-b000-000000000000")
+                {
+                    await s.GetAllCharacteristics();
+                    foreach(ObservableGattCharacteristics c in s.Characteristics)
+                    {
+                        if(c.UUID == "f000aa81-0451-4000-b000-000000000000")
+                        {
+                            MotionCharacteristic = c;
+                            await StartNotification(MotionCharacteristic);
+                        }
+                        if (c.UUID == "f000aa82-0451-4000-b000-000000000000")
+                        {
+                            GattCommunicationStatus status = await c.Characteristic.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
+                            if (status == GattCommunicationStatus.Success)
+                            {
+                                App.Debug("Configured motion reporting frequency.");
+                            }
+                            else
+                            {
+                                MetroEventSource.ToastAsync("Communication status = " + status);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task StartNotification(ObservableGattCharacteristics c)
+        {
+            c.Characteristic.ValueChanged += accData_ValueChanged;
+            GattCommunicationStatus status = await c.Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+            if (status == GattCommunicationStatus.Success)
+            {
+                App.Debug("Registered for motion change notifications.");
+            }
+            else
+            {
+                MetroEventSource.ToastAsync("Communication status = " + status);
+            }
+        }
+
+        private async Task StopNotification(ObservableGattCharacteristics c)
+        {
+            c.Characteristic.ValueChanged -= accData_ValueChanged;
+            GattCommunicationStatus status = await c.Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+            if (status == GattCommunicationStatus.Success)
+            {
+                App.Debug("Un-registered for motion change notifications.");
+            }
+            else
+            {
+                MetroEventSource.ToastAsync("Communication status = " + status);
+            }
+        }
+
+        private void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
+        {
+            try
+            {
+                double SCALE200G = (double)0.049;
+                //var data = (await sender.ReadValueAsync()).Value.ToArray();
+                byte[] data = args.CharacteristicValue.ToArray();
+                short x = (short)((data[7] << 8) | data[6]);
+                short y = (short)((data[9] << 8) | data[8]);
+                short z = (short)((data[11] << 8) | data[10]);
+
+                MovementDataChangedEventArgs measurement = new MovementDataChangedEventArgs();
+                measurement.X = Math.Round((double)(x * SCALE200G) / 8, 2);
+                measurement.Y = Math.Round((double)(y * SCALE200G) / 8, 2);
+                measurement.Z = Math.Round((double)(z * SCALE200G) / 8, 2);
+                String logMsg = "X=" + x + ", Y=" + y + ", Z=" + z + ", abs = " + measurement.Total;
+                App.Debug("x="+ Convert.ToString(data[7], 2).PadLeft(8,'0') + Convert.ToString(data[6], 2).PadLeft(8, '0') +
+                ", y=" + Convert.ToString(data[9], 2).PadLeft(8, '0') + Convert.ToString(data[8], 2).PadLeft(8, '0') +
+                ", z=" + Convert.ToString(data[11], 2).PadLeft(8, '0') + Convert.ToString(data[10], 2).PadLeft(8, '0'));
+
+                //MovementDataChanged(this, measurement);
+            }
+            catch (ObjectDisposedException e)
+            {
+                App.Debug("Error: received data while object disposed of. " + e.Message);
+            }
         }
 
         private void ConnectAsSensorTag(NavigationEventArgs e)
@@ -263,12 +350,20 @@ namespace MiningImpactSensor.Pages
             Frame.GoBack();
         }
 
-        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        private async void Page_Unloaded(object sender, RoutedEventArgs e)
         {
             liveTileUpdater.Stop();
             loggedOnIndicatorTimer.Stop();
             loggedOnIndicatorTimer = null;
             SelectedDevicePage = null;
+            if (MotionCharacteristic != null)
+            {
+                await this.StopNotification(MotionCharacteristic);
+            }
+            if (SelectedDevice != null)
+            {
+                SelectedDevice.BluetoothLEDevice.Dispose();
+            }
         }
 
         void startLoggedOnTimer()

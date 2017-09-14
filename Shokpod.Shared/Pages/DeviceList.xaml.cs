@@ -185,9 +185,10 @@ namespace MiningImpactSensor.Pages
         private void OnItemClick(object sender, ItemClickEventArgs e)
         {
             TileModel tile = e.ClickedItem as TileModel;
-            ObservableBluetoothLEDevice sensor = (ObservableBluetoothLEDevice)tile.UserData;
+            ObservableBluetoothLEDevice selectedDevice = (ObservableBluetoothLEDevice)tile.UserData;
+            gattContext.SelectedBluetoothLEDevice = selectedDevice;
             Frame frame = Window.Current.Content as Frame;
-            frame.Navigate(typeof(DevicePage), sensor);
+            frame.Navigate(typeof(DevicePage), selectedDevice);
         }
 
         private void OnRefresh(object sender, RoutedEventArgs e)
