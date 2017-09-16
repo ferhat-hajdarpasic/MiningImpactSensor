@@ -25,7 +25,7 @@ namespace SensorTag
 
         void sendTileTextNotification()
         {
-            string g = RecordingQueue.MaximumImpact + "G";
+            string g = RecordingQueue.SingleRecordingQueue.MaximumImpact + "G";
             UpdateTile(g);
         }
 

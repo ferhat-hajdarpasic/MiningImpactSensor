@@ -67,7 +67,7 @@
         <StackPanel Orientation="Vertical" Grid.Row="2">
             <ProgressRing Name="ProgressRing" IsActive="true" HorizontalAlignment="Center" Width="50" Height="50" Background="{x:Null}"/>
             <TextBlock x:Name="DebugMessage" Text="" FontSize="24" Margin="10" TextWrapping="Wrap" HorizontalAlignment="Center"/>
-            <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="{StaticResource TextForegroundColor}" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36" Click="button_Click"/>
+            <Button x:Name="button" Content="LOGOUT" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="{StaticResource TextForegroundColor}" Background="{StaticResource PageTitleBackgroundColor}" BorderBrush="{x:Null}" Margin="10" FontSize="36" Click="LogoutButtonClick"/>
         </StackPanel>
     </Grid>
 </Page>

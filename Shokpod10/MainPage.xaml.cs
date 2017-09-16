@@ -36,7 +36,7 @@ namespace Shokpod10
             SensorTagPanel.Show();
         }
 
-        protected override void OnNavigatedFrom(Windows.UI.Xaml.Navigation.NavigationEventArgs e)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
             SensorTagPanel.Hide();

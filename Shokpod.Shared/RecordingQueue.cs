@@ -15,41 +15,51 @@ namespace SensorTag
 {
     public class RecordingQueue
     {
-        private static ConcurrentQueue<MovementRecord> deviceQueue = new ConcurrentQueue<MovementRecord>();
-        private static ConcurrentQueue<MovementRecord> remoteServerQueue = new ConcurrentQueue<MovementRecord>();
-
-        private static ThreadPoolTimer deviceTimer = ThreadPoolTimer.CreatePeriodicTimer((t) =>
+        private ConcurrentQueue<MovementRecord> deviceQueue = new ConcurrentQueue<MovementRecord>();
+        private ConcurrentQueue<MovementRecord> remoteServerQueue = new ConcurrentQueue<MovementRecord>();
+        public static RecordingQueue SingleRecordingQueue { get; private set; } = new RecordingQueue();
+        public class RecordingQueueEventArgs : EventArgs
         {
-            List<MovementRecord> recordsToSend = getDeviceRecords();
-            sendDeviceRecords(recordsToSend);
+            internal SingleRecord MaximumImpact;
+
+            public SingleRecord Record { get; set; }
+            public HttpResponseMessage Response { get; set; }
+            public Exception Exception { get; set; }
+        }
+        public event EventHandler<RecordingQueueEventArgs> OnRecordingEvent;
+
+        private ThreadPoolTimer deviceTimer = ThreadPoolTimer.CreatePeriodicTimer((t) =>
+        {
+            List<MovementRecord> recordsToSend = SingleRecordingQueue.getDeviceRecords();
+            SingleRecordingQueue.sendDeviceRecords(recordsToSend);
         }, TimeSpan.FromSeconds(5));
 
 
-        private static Boolean timerActive = false;
-        private static ThreadPoolTimer bufferedRecordsTimer = ThreadPoolTimer.CreatePeriodicTimer((t) =>
+        private Boolean timerActive = false;
+        private ThreadPoolTimer bufferedRecordsTimer = ThreadPoolTimer.CreatePeriodicTimer((t) =>
         {
-            if (!timerActive)
+            if (!SingleRecordingQueue.timerActive)
             {
                 try
                 {
-                    timerActive = true;
-                    sendBufferedServerRecords();
+                    SingleRecordingQueue.timerActive = true;
+                    SingleRecordingQueue.sendBufferedServerRecords();
                 }
                 finally
                 {
-                    timerActive = false;
+                    SingleRecordingQueue.timerActive = false;
                 }
             }
         }, TimeSpan.FromSeconds(5));
 
-        public static double MaximumImpact { get; internal set; }
+        public double MaximumImpact { get; internal set; }
 
-        public static void AddToDeviceQueue(MovementRecord record)
+        public void AddToDeviceQueue(MovementRecord record)
         {
             deviceQueue.Enqueue(record);
         }
 
-        public static void AddToRemoteServerQueue(MovementRecord record)
+        public void AddToRemoteServerQueue(MovementRecord record)
         {
             if (deviceQueue.Count < 60 * 60 * 10) //10 hours
             {
@@ -67,7 +77,7 @@ namespace SensorTag
             }
         }
 
-        private static List<MovementRecord> getDeviceRecords()
+        private List<MovementRecord> getDeviceRecords()
         {
             MovementRecord record = new MovementRecord();
             List<MovementRecord> recordsToSend = new List<MovementRecord>();
@@ -79,7 +89,7 @@ namespace SensorTag
             return recordsToSend;
         }
 
-        private static void sendDeviceRecords(List<MovementRecord> recordsToSend)
+        private void sendDeviceRecords(List<MovementRecord> recordsToSend)
         {
             ShokpodSettings settings = ShokpodSettings.getSettings().Result;
             Dictionary<string, MovementRecord> groupedByDeviceAddress = new Dictionary<string, MovementRecord>();
@@ -104,6 +114,7 @@ namespace SensorTag
                     var itemAsJson = JsonConvert.SerializeObject(record);
                     var content = new StringContent(itemAsJson);
                     content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
                     try
                     {
                         using (var httpClient = new HttpClient())
@@ -119,26 +130,33 @@ namespace SensorTag
                                     data = ""
                                 });
                                 App.Debug(pushServerResponse.data);
-                                MiningImpactSensor.Pages.DevicePage.Debug("Persisted acceleration of " + record.Recording[0].Value.Acceleration + "G.");
-                                MetroEventSource.ToastAsync("Persisted acceleration of " + record.Recording[0].Value.Acceleration + "G.");
+                                OnRecordingEvent(this, new RecordingQueueEventArgs {
+                                    Record = record.Recording[0]
+                                });
                             }
                             else
                             {
-                                App.Debug("HTTP call to remote server failed with error: '" + response.ReasonPhrase + ".'");
-                                RecordingQueue.AddToRemoteServerQueue(record);
+                                OnRecordingEvent(this, new RecordingQueueEventArgs
+                                {
+                                    Response = response
+                                });
+                                AddToRemoteServerQueue(record);
                                 App.Debug("Added failed record to the remote server queue: '" + record.Recording[0].Value.Acceleration + "G.'");
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        MiningImpactSensor.Pages.DevicePage.Debug("Exception while saving data to the remote server." + e.Message);
+                        OnRecordingEvent(this, new RecordingQueueEventArgs
+                        {
+                            Exception = e
+                        });
                     }
                 }
             }
         }
 
-        private static void sendBufferedServerRecords()
+        private void sendBufferedServerRecords()
         {
             ShokpodSettings settings = ShokpodSettings.getSettings().Result;
             MovementRecord recordItem;
@@ -161,19 +179,25 @@ namespace SensorTag
                             data = ""
                         });
                         App.Debug(pushServerResponse.data);
-                        MiningImpactSensor.Pages.DevicePage.Debug("Sent to server acceleration of " + recordItem.Recording[0].Value.Acceleration + "G.");
+                        OnRecordingEvent(this, new RecordingQueueEventArgs
+                        {
+                            Record = recordItem.Recording[0]
+                        });
                         remoteServerQueue.TryDequeue(out recordItem);
                     }
                     else
                     {
-                        App.Debug("While sending buffered records, HTTP call to remote server failed with error: '" + response.ReasonPhrase + "'. Breaking out.");
+                        OnRecordingEvent(this, new RecordingQueueEventArgs
+                        {
+                            Response = response
+                        });
                         break;
                     }
                 }
             }
         }
 
-        private static async Task<MovementRecord> maximumImpact(MovementRecord record)
+        private async Task<MovementRecord> maximumImpact(MovementRecord record)
         {
             MovementRecord result = null;
             SingleRecord maximumImpact = new SingleRecord();
@@ -194,17 +218,20 @@ namespace SensorTag
                 result.AssignedName = record.AssignedName;
                 result.DeviceAddress = record.DeviceAddress;
                 result.Recording.Add(maximumImpact);
-                MiningImpactSensor.Pages.DevicePage.Debug("Recording acceleration of " + maximumImpact.Value.Acceleration + "G.");
+                OnRecordingEvent(this, new RecordingQueueEventArgs
+                {
+                    MaximumImpact = maximumImpact
+                });
             } else
             {
-                /*MiningImpactSensor.Pages.DevicePage.Debug(maximumImpact.Value.Acceleration + "G is below threshold of " + serverReportingThreshold + "G, not recording it.");*/
+                App.Debug(maximumImpact.Value.Acceleration + "G is below threshold of " + serverReportingThreshold + "G, not recording it.");
             }
             if(result != null)
             {
-                RecordingQueue.MaximumImpact = maximumImpact.Value.Acceleration;
+                MaximumImpact = maximumImpact.Value.Acceleration;
             } else
             {
-                RecordingQueue.MaximumImpact = 0;
+                MaximumImpact = 0;
             }
             return result;
         }

@@ -14,20 +14,20 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Enumeration.Pnp;
 using Windows.UI.Core;
+using Windows.UI.Popups;
+using static SensorTag.ObservableBluetoothLEDevice;
 
 namespace MiningImpactSensor
 {
     public class SensorTag
     {
         public static Guid IRTemperatureServiceUuid = Guid.Parse("f000aa00-0451-4000-b000-000000000000");
-        private PnpObjectWatcher watcher;
-        private GattCharacteristic characteristic;
-        GattDeviceService accService;
-        private const GattClientCharacteristicConfigurationDescriptorValue CHARACTERISTIC_NOTIFICATION_TYPE =
-            GattClientCharacteristicConfigurationDescriptorValue.Notify;
+        private ObservableBluetoothLEDevice device;
+        private ObservableGattCharacteristics MotionCharacteristic;
 
-        public SensorTag(DeviceInformation device)
+        public SensorTag(ObservableBluetoothLEDevice device)
         {
+            this.Device = device;
             string name = device.Name;
             App.Debug("Found sensor tag: [{0}]", name);
 
@@ -40,110 +40,87 @@ namespace MiningImpactSensor
             //{
             //    DeviceName = "CC2541";
             //}
-            this.DeviceId = device.Id;
-            this.DeviceAddress = SensorTagDeviceIdParser.parse(device);
+            this.DeviceAddress = device.BluetoothAddressAsString;
             this.AssignedToName = DeviceAddress;
         }
 
-        public string DeviceId { get; set; }
         public string DeviceAddress {get ; set;}
         public string DeviceName { get; set; }
         public string AssignedToName { get; set; }
         public bool Connected { get; set; }
         public DateTime DateTimeConnected  { get; set; }
-    //public String deviceContainerId { get; set; }
+        public ObservableBluetoothLEDevice Device { get => device; set => device = value; }
 
-    public static async Task<List<SensorTag>> FindAllMotionSensors()
+        private async Task StartNotification(ObservableGattCharacteristics c)
         {
-            List<SensorTag> result = new List<SensorTag>();
-            foreach (DeviceInformation device in await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(new Guid("f000aa80-0451-4000-b000-000000000000"))))
+            c.Characteristic.ValueChanged += accData_ValueChanged;
+            GattCommunicationStatus status = await c.Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+            if (status == GattCommunicationStatus.Success)
             {
-                string name = device.Name;
-                if (name.Contains("SensorTag") || name.Contains("Sensor Tag") || name.Contains("ShokPod"))
-                {
-                    SensorTag sensor = new SensorTag(device);
-                    PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
-                    sensor.AssignedToName = persistedDevices.getAssignedToName(sensor.DeviceAddress);
-                    sensor.Connected = persistedDevices.getConnected(sensor.DeviceAddress);
-                    result.Add(sensor);
-                }
-                App.Debug("Name=" + device.Name + ", Id=" + device.Id);
+                App.Debug("Registered for motion change notifications.");
             }
+            else
+            {
+                MetroEventSource.ToastAsync("Communication status = " + status);
+            }
+        }
 
+        private async Task StopNotification(ObservableGattCharacteristics c)
+        {
+            c.Characteristic.ValueChanged -= accData_ValueChanged;
+            GattCommunicationStatus status = await c.Characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
+            if (status == GattCommunicationStatus.Success)
+            {
+                App.Debug("Un-registered for motion change notifications.");
+            }
+            else
+            {
+                MetroEventSource.ToastAsync("Communication status = " + status);
+            }
+        }
+
+        public async Task<ConnectionResult> Connect()
+        {
+            Debug.WriteLine("ConnectToSelectedDevice: Entering");
+            GattSampleContext.Context.StopEnumeration();
+
+            Debug.WriteLine("ConnectToSelectedDevice: Trying to connect to " + Device.Name);
+
+            ConnectionResult result = await Device.Connect();
+
+            if (result.Result.Status == GattCommunicationStatus.Success)
+            {
+                foreach (ObservableGattDeviceService s in Device.Services)
+                {
+                    if (s.UUID == "f000aa80-0451-4000-b000-000000000000")
+                    {
+                        await s.GetAllCharacteristics();
+                        foreach (ObservableGattCharacteristics c in s.Characteristics)
+                        {
+                            if (c.UUID == "f000aa81-0451-4000-b000-000000000000")
+                            {
+                                MotionCharacteristic = c;
+                                await StartNotification(MotionCharacteristic);
+                            }
+                            if (c.UUID == "f000aa82-0451-4000-b000-000000000000")
+                            {
+                                GattCommunicationStatus status = await c.Characteristic.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
+                                if (status == GattCommunicationStatus.Success)
+                                {
+                                    App.Debug("Configured motion reporting frequency.");
+                                }
+                                else
+                                {
+                                    MetroEventSource.ToastAsync("Communication status = " + status);
+                                }
+                            }
+                        }
+                    }
+                }
+                DateTimeConnected = DateTime.Now;
+                Connected = true;
+            }
             return result;
-        }
-
-        private void StartDeviceConnectionWatcher()
-        {
-            watcher = PnpObject.CreateWatcher(PnpObjectType.DeviceContainer,
-                new string[] { "System.Devices.Connected" }, String.Empty);
-
-            watcher.Updated += DeviceConnection_Updated;
-            watcher.Start();
-        }
-
-        private void DeviceConnection_Updated(PnpObjectWatcher watcher, PnpObjectUpdate args)
-        {
-            bool isConnected = (bool)args.Properties["System.Devices.Connected"];
-
-            DateTimeConnected = DateTime.Now;
-            this.Connected = true;
-
-            if (isConnected)
-            {
-                watcher.Stop();
-                watcher = null;
-            }
-        }
-
-        public async void ConnectMotionService()
-        {
-            BluetoothLEDevice v1 = await BluetoothLEDevice.FromIdAsync(this.DeviceId);
-            App.Debug("Found device" + v1.DeviceId);
-            GattDeviceServicesResult servicesResult = await v1.GetGattServicesForUuidAsync(new Guid("f000aa80-0451-4000-b000-000000000000"));
-            if (servicesResult.Status == GattCommunicationStatus.Success)
-            {
-                App.Debug("Found motion service" + servicesResult.Services[0].Uuid);
-                var accService = servicesResult.Services[0];
-                GattCharacteristicsResult gattCharacteristicsResult = await accService.GetCharacteristicsForUuidAsync(new Guid("f000aa81-0451-4000-b000-000000000000"));
-                if (gattCharacteristicsResult.Status == GattCommunicationStatus.Success)
-                {
-                    App.Debug("Found motion characteristics service" + gattCharacteristicsResult.Characteristics[0].Uuid);
-                    characteristic = gattCharacteristicsResult.Characteristics[0];
-                    characteristic.ValueChanged += accData_ValueChanged;
-                    GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-                    if (status == GattCommunicationStatus.Success)
-                    {
-                        App.Debug("Registered for motion change notifications.");
-                    } else
-                    {
-                        MetroEventSource.ToastAsync("Communication status = " + status);
-                    }
-
-                    var accConfig = (await accService.GetCharacteristicsForUuidAsync(new Guid("f000aa82-0451-4000-b000-000000000000"))).Characteristics[0];
-                    status = await accConfig.WriteValueAsync((new byte[] { 0x7F, 0x03 }).AsBuffer());
-                    if(status == GattCommunicationStatus.Success)
-                    {
-                        App.Debug("Configured motion reporting frequency.");
-                    }
-                    else
-                    {
-                        MetroEventSource.ToastAsync("Communication status = " + status);
-                    }
-
-                    this.DateTimeConnected = DateTime.Now;
-                    PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
-                    persistedDevices.saveDevice(this);
-                    this.Connected = true;
-                    OnConnected(this, new ConnectedEventArgs { sensorTag = this, success = true });
-                } else
-                {
-                    MetroEventSource.ToastAsync("Characterstics reult = " + gattCharacteristicsResult.Status);
-                }
-            } else {
-                MetroEventSource.ToastAsync("Service reult = " + servicesResult.Status);
-            }
-            OnConnected(this, new ConnectedEventArgs { sensorTag = this, success = false });
         }
 
         private async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
@@ -173,21 +150,6 @@ namespace MiningImpactSensor
             }
         }
 
-        internal async void Disconnect()
-        {
-            if (characteristic != null)
-            {
-                await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
-            }
-            if (accService != null)
-            {
-                accService.Dispose();
-                accService = null;
-            }
-            characteristic = null;
-            GC.Collect();
-        }
-
         public class MovementDataChangedEventArgs : EventArgs
         {
             public double X { get; set; }
@@ -204,6 +166,17 @@ namespace MiningImpactSensor
 
 
         public event EventHandler<MovementDataChangedEventArgs> MovementDataChanged;
-        public event EventHandler<ConnectedEventArgs> OnConnected;
+
+        public async void Disconnect()
+        {
+            if (MotionCharacteristic != null)
+            {
+                await this.StopNotification(MotionCharacteristic);
+            }
+            if (Device != null)
+            {
+                Device.BluetoothLEDevice.Dispose();
+            }
+        }
     }
 }

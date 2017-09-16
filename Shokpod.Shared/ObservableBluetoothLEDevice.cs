@@ -433,44 +433,46 @@ namespace SensorTag
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public class ConnectionResult
+        {
+            public GattDeviceServicesResult Result { get; set; }
+            public Exception Exception { get; set; }
+            public bool Success { get; set; }
+        }
         /// <summary>
         /// Connect to this bluetooth device
         /// </summary>
         /// <returns>Connection task</returns>
-        public async Task<bool> Connect()
+        public async Task<ConnectionResult> Connect()
         {
-            bool ret = false;
-            string debugMsg = String.Format("Connect: ");
+            ConnectionResult ret = new ConnectionResult();
 
-            Debug.WriteLine(debugMsg + "Entering");
+            Debug.WriteLine("Connect: Entering");
 
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunTaskAsync(async () =>
             {
-                Debug.WriteLine(debugMsg + "In UI thread");
+                Debug.WriteLine("Connect: In UI thread");
                 try
                 {
 
                     if (BluetoothLEDevice == null)
                     {
-                        Debug.WriteLine(debugMsg + "Calling BluetoothLEDevice.FromIdAsync");
+                        Debug.WriteLine("Connect: Calling BluetoothLEDevice.FromIdAsync");
                         BluetoothLEDevice = await BluetoothLEDevice.FromIdAsync(DeviceInfo.Id);
                     }
                     else
                     {
-                        Debug.WriteLine(debugMsg + "Previously connected, not calling BluetoothLEDevice.FromIdAsync");
+                        Debug.WriteLine("Connect: Previously connected, not calling BluetoothLEDevice.FromIdAsync");
                     }
 
                     if (BluetoothLEDevice == null)
                     {
-                        ret = false;
-                        Debug.WriteLine(debugMsg + "BluetoothLEDevice is null");
-
-                        MessageDialog dialog = new MessageDialog("No permission to access device", "Connection error");
-                        await dialog.ShowAsync();
+                        ret.Success = false;
+                        Debug.WriteLine("Connect: BluetoothLEDevice is null");
                     }
                     else
                     {
-                        Debug.WriteLine(debugMsg + "BluetoothLEDevice is " + BluetoothLEDevice.Name);
+                        Debug.WriteLine("Connect: BluetoothLEDevice is " + BluetoothLEDevice.Name);
 
                         // Setup our event handlers and view model properties
                         BluetoothLEDevice.ConnectionStatusChanged += BluetoothLEDevice_ConnectionStatusChanged;
@@ -486,63 +488,42 @@ namespace SensorTag
                         var GetGattServicesAsyncTask = Task.Run(() => BluetoothLEDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached), GetGattServicesAsyncTokenSource.Token);
 
                         result = await GetGattServicesAsyncTask.Result;
+                        ret.Result = result;
 
                         if (result.Status == GattCommunicationStatus.Success)
                         {
                             // In case we connected before, clear the service list and recreate it
                             Services.Clear();
 
-                            System.Diagnostics.Debug.WriteLine(debugMsg + "GetGattServiceAsync SUCCESS");
+                            Debug.WriteLine("Connect: GetGattServiceAsync SUCCESS");
                             foreach (var serv in result.Services)
                             {
-                                System.Diagnostics.Debug.WriteLine($"Found Service uuid={serv.Uuid}");
+                                Debug.WriteLine($"Found Service uuid={serv.Uuid}");
                                 Services.Add(new ObservableGattDeviceService(serv));
                             }
 
                             ServiceCount = Services.Count();
-                            ret = true;
+                            ret.Success = true;
                         }
                         else if (result.Status == GattCommunicationStatus.ProtocolError)
                         {
-                            ErrorText = debugMsg + "GetGattServiceAsync Error: Protocol Error - " + result.ProtocolError.Value;
-                            System.Diagnostics.Debug.WriteLine(ErrorText);
-                            string msg = "Connection protocol error: " + result.ProtocolError.Value.ToString();
-                            var messageDialog = new MessageDialog(msg, "Connection failures");
-                            await messageDialog.ShowAsync();
+                            ErrorText = "Connect: GetGattServiceAsync Error: Protocol Error - " + result.ProtocolError.Value;
+                            Debug.WriteLine(ErrorText);
 
                         }
                         else if (result.Status == GattCommunicationStatus.Unreachable)
                         {
-                            ErrorText = debugMsg + "GetGattServiceAsync Error: Unreachable";
-                            System.Diagnostics.Debug.WriteLine(ErrorText);
-                            string msg = "Device unreachable";
-                            var messageDialog = new MessageDialog(msg, "Connection failures");
-                            await messageDialog.ShowAsync();
+                            ErrorText = "Connect: GetGattServiceAsync Error: Unreachable";
+                            Debug.WriteLine(ErrorText);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(debugMsg + "Exception - " + ex.Message);
-                    string msg = String.Format("Message:\n{0}\n\nInnerException:\n{1}\n\nStack:\n{2}", ex.Message, ex.InnerException, ex.StackTrace);
-
-                    var messageDialog = new MessageDialog(msg, "Exception");
-                    await messageDialog.ShowAsync();
-
-                    // Debugger break here so we can catch unknown exceptions
-                    Debugger.Break();
+                    ret.Exception = ex;
+                    Debug.WriteLine("Connect: Exception - " + ex.Message);
                 }
             });
-
-            if (ret)
-            {
-                Debug.WriteLine(debugMsg + "Exiting (0)");
-            }
-            else
-            {
-                Debug.WriteLine(debugMsg + "Exiting (-1)");
-            }
-
             return ret;
         }
 

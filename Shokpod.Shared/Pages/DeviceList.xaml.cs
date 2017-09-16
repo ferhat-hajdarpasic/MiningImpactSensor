@@ -58,62 +58,6 @@ namespace MiningImpactSensor.Pages
             gattContext.StartEnumeration();
         }
 
-        private void Scan1()
-        {
-            try
-            {
-                tiles.Clear();
-
-                BleWatcher = new BluetoothLEAdvertisementWatcher
-                {
-                    ScanningMode = BluetoothLEScanningMode.Active
-                };
-                BleWatcher.Received += async (w, btAdv) => {
-                    try
-                    {
-                        var device = await BluetoothLEDevice.FromBluetoothAddressAsync(btAdv.BluetoothAddress);
-                        if ((device != null) && device.Name.Contains("ShokPod"))
-                        {
-                            var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
-                            {
-                                var existing = tiles.Any((item) =>
-                                {
-                                    SensorTag temp = (SensorTag)item.UserData;
-                                    return temp.DeviceId == device.DeviceId;
-                                });
-                                if (!existing)
-                                {
-                                    Debug.WriteLine($"Found ShokPod: {device.Name} - {device.BluetoothAddress} - {device.DeviceId} - {device.ConnectionStatus}");
-                                    SensorTag sensor = new SensorTag(device.DeviceInformation);
-                                    App.Debug("Name=" + sensor.DeviceName + ", Id=" + sensor.DeviceId);
-
-                                    tiles.Add(new TileModel() { Caption = sensor.AssignedToName, Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")), UserData = sensor });
-                                    sensor.MovementDataChanged += OnMovementMeasurementValueChanged;
-                                    HideHelp();
-                                }
-                            }));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Exception for device: {btAdv.BluetoothAddress} - {btAdv.AdvertisementType}- {ex.Message}");
-                    }
-                };
-                BleWatcher.Start();
-
-                if (tiles.Count == 0)
-                {
-                    ShowHelp();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                DisplayMessage("Finding devices failed, please make sure your Bluetooth radio is on.  Details: " + ex.Message);
-                ShowHelp();
-            }
-        }
-
         private object deviceListLock = new object();
         private void BluetoothLEDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
@@ -124,8 +68,8 @@ namespace MiningImpactSensor.Pages
                 {
                     foreach (ObservableBluetoothLEDevice newDev in e.NewItems)
                     {
-                        //DeviceList.Add(newDev);
-                        tiles.Add(new TileModel() { Caption = $"{newDev.BluetoothAddressAsString}({newDev.Name})", Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")), UserData = newDev });
+                        SensorTag sensorTag = new SensorTag(newDev);
+                        tiles.Add(new TileModel() { Caption = $"{newDev.BluetoothAddressAsString}({newDev.Name})", Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")), UserData = sensorTag });
                     }
                 }
                 else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
@@ -141,22 +85,6 @@ namespace MiningImpactSensor.Pages
                 }
             }
 
-        }
-
-        private void OnMovementMeasurementValueChanged(object sender, SensorTag.MovementDataChangedEventArgs movementData)
-        {
-            SensorTag sensor = (SensorTag)sender;
-            var nowait = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
-            {
-                string caption = Math.Round(movementData.X, 3) + "," + Math.Round(movementData.Y, 3) + "," + Math.Round(movementData.Z, 3);
-                var a = GetTile(sensor.AssignedToName);
-                if (a != null)
-                {
-                    a.SensorValue = caption;
-                }
-            }));
-
-            DevicePage.PostAsJsonAsync(movementData);
         }
 
         private TileModel GetTile(string name)
@@ -185,10 +113,10 @@ namespace MiningImpactSensor.Pages
         private void OnItemClick(object sender, ItemClickEventArgs e)
         {
             TileModel tile = e.ClickedItem as TileModel;
-            ObservableBluetoothLEDevice selectedDevice = (ObservableBluetoothLEDevice)tile.UserData;
-            gattContext.SelectedBluetoothLEDevice = selectedDevice;
+            SensorTag sensorTag = (SensorTag)tile.UserData;
+            gattContext.SelectedBluetoothLEDevice = sensorTag.Device;
             Frame frame = Window.Current.Content as Frame;
-            frame.Navigate(typeof(DevicePage), selectedDevice);
+            frame.Navigate(typeof(DevicePage), sensorTag);
         }
 
         private void OnRefresh(object sender, RoutedEventArgs e)
