@@ -16,7 +16,6 @@ namespace Shokpod10
     /// </summary>
     sealed partial class App : Application
     {
-        MiningImpactSensor.SensorTag _sensor;
         ExtendedExecutionSession extendedExecutionSession;
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Shokpod10
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
-
+            await PersistedDevices.singleInstance.populate();
             BeginExtendedExecution();
         }
 
@@ -168,30 +167,6 @@ namespace Shokpod10
         public static void Debug(string format, params object[] arguments)
         {
             MetroEventSource.Log.Debug(String.Format(format, arguments));
-        }
-        public MiningImpactSensor.SensorTag SensorTag
-        {
-            get { return _sensor; }
-            set { _sensor = value; }
-        }
-
-        public static void SetSelectedSensorTag(MiningImpactSensor.SensorTag sensor)
-        {
-            ((App)Application.Current).SensorTag = sensor;
-        }
-
-        public static MiningImpactSensor.SensorTag getSelectedSensorTag()
-        {
-            return ((App)Application.Current).SensorTag;
-        }
-        public static async void SetSensorTagName(string text)
-        {
-            if (App.getSelectedSensorTag().AssignedToName != text)
-            {
-                App.getSelectedSensorTag().AssignedToName = text;
-                PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
-                persistedDevices.saveDevice(App.getSelectedSensorTag());
-            }
         }
     }
 }

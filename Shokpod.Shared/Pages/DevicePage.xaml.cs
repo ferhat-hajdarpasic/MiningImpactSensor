@@ -44,7 +44,6 @@ namespace MiningImpactSensor.Pages
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             SelectedSensorTag = e.Parameter as SensorTag;
-            ((App)Application.Current).SensorTag = SelectedSensorTag;
 
             SensorList.ItemsSource = tiles;
 
@@ -239,7 +238,11 @@ namespace MiningImpactSensor.Pages
 
         private void AssignedToTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            App.SetSensorTagName(this.AssignedToTextBox.Text);
+            if (SelectedSensorTag.AssignedToName != this.AssignedToTextBox.Text)
+            {
+                SelectedSensorTag.AssignedToName = this.AssignedToTextBox.Text;
+                PersistedDevices.singleInstance.saveDevice(SelectedSensorTag);
+            }
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -271,10 +274,9 @@ namespace MiningImpactSensor.Pages
             }
         }
 
-        private async void LogoutButtonClick(object sender, RoutedEventArgs e)
+        private void LogoutButtonClick(object sender, RoutedEventArgs e)
         {
-            PersistedDevices persistedDevices = await PersistedDevices.getPersistedDevices();
-            persistedDevices.saveDevice(SelectedSensorTag);
+            PersistedDevices.singleInstance.saveDevice(SelectedSensorTag);
             setCurrentImpct("");
             Frame.GoBack();
         }
@@ -293,7 +295,7 @@ namespace MiningImpactSensor.Pages
             loggedOnIndicatorTimer.Tick += (object sender, object e) => {
                 if ((SelectedSensorTag != null) && (SelectedSensorTag.Connected) && (SelectedSensorTag.DateTimeConnected.Year != 1))
                 {
-                    TimeSpan ts = App.getSelectedSensorTag().DateTimeConnected - DateTime.Now;
+                    TimeSpan ts = SelectedSensorTag.DateTimeConnected - DateTime.Now;
                     this.LoggedOnTimeTextBox.Text = "Logged on time: " + String.Format("{0:dd\\.hh\\:mm\\:ss}", ts);
                 }
                 else

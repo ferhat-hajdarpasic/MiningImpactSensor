@@ -57,7 +57,7 @@ namespace SensorTag
                 }
                 catch (Exception ex)
                 {
-                    // TODO:
+                    Debug.WriteLine(ex.Message);
                 }
                 finally
                 {

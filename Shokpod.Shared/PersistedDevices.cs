@@ -13,31 +13,22 @@ namespace SensorTag
 {
     class PersistedDevices
     {
-        private List<PersistedDevice> devices = null;
         private static string FILE_NAME = "devices.json";
 
-        private static PersistedDevices singleInstance = null;
+        public static PersistedDevices singleInstance = new PersistedDevices();
 
-        public static async Task<PersistedDevices> getPersistedDevices()
+        public List<PersistedDevice> Devices { get ; private set; }
+
+        private PersistedDevices()
         {
-            if (singleInstance == null)
-            {
-                singleInstance = await create();
-            }
-            return singleInstance;
         }
 
-        private PersistedDevices(List<PersistedDevice> result)
+        public async Task<bool> populate()
         {
-            this.devices = result;
-        }
-
-        private static async Task<PersistedDevices> create()
-        {
-            List<PersistedDevice> devices = new List<PersistedDevice>();
+            Devices = new List<PersistedDevice>();
             try
             {
-                Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+                StorageFolder localFolder = ApplicationData.Current.LocalFolder;
                 StorageFile devicesFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.OpenIfExists);
                 string devicesJson = await FileIO.ReadTextAsync(devicesFile);
 
@@ -60,26 +51,25 @@ namespace SensorTag
                     device.AssignedToName = obj.GetNamedString("AssignedToName");
                     device.Selected = obj.GetNamedBoolean("Selected");
                     device.DeviceAddress = obj.GetNamedString("DeviceAddress");
-                    devices.Add(device);
+                    Devices.Add(device);
                 }
             }
             catch (Exception e)
             {
                 App.Debug("Error reading " + FILE_NAME + "." + e.Message);
             }
-            return new PersistedDevices(devices);
+            return true;
         }
 
-        private async void saveToFile(List<PersistedDevice> _devices)
+        private async void saveToFile()
         {
             try
             {
-                Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+                StorageFolder localFolder = ApplicationData.Current.LocalFolder;
                 StorageFile devicesFile = await localFolder.CreateFileAsync(FILE_NAME, CreationCollisionOption.ReplaceExisting);
 
-                string json = JsonConvert.SerializeObject(_devices);
+                string json = JsonConvert.SerializeObject(Devices);
                 await FileIO.WriteTextAsync(devicesFile, json);
-                devices = _devices;
             } catch (System.IO.IOException e)
             {
                 MetroEventSource.ToastAsync("Cannot save configuration! " + e.Message);
@@ -88,7 +78,7 @@ namespace SensorTag
 
         public string getAssignedToName(string deviceAddress)
         {
-            foreach (PersistedDevice device in devices)
+            foreach (PersistedDevice device in Devices)
             {
                 if (device.DeviceAddress == deviceAddress)
                 {
@@ -100,7 +90,7 @@ namespace SensorTag
 
         public bool getConnected(string deviceAddress)
         {
-            foreach (PersistedDevice device in devices)
+            foreach (PersistedDevice device in Devices)
             {
                 if (device.DeviceAddress == deviceAddress)
                 {
@@ -113,7 +103,7 @@ namespace SensorTag
         public void saveDevice(MiningImpactSensor.SensorTag sensorTag)
         {
             PersistedDevice targetDevice = null;
-            foreach (PersistedDevice device in devices)
+            foreach (PersistedDevice device in Devices)
             {
                 if (device.DeviceAddress == sensorTag.DeviceAddress)
                 {
@@ -124,13 +114,13 @@ namespace SensorTag
             if (targetDevice == null)
             {
                 targetDevice = new PersistedDevice();
-                devices.Add(targetDevice);
+                Devices.Add(targetDevice);
             }
             targetDevice.AssignedToName = sensorTag.AssignedToName;
             targetDevice.Selected = sensorTag.Connected;
             targetDevice.DeviceAddress = sensorTag.DeviceAddress;
             targetDevice.DeviceName = sensorTag.DeviceName;
-            saveToFile(devices);
+            saveToFile();
         }
     }
 }

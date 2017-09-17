@@ -68,8 +68,11 @@ namespace MiningImpactSensor.Pages
                 {
                     foreach (ObservableBluetoothLEDevice newDev in e.NewItems)
                     {
-                        SensorTag sensorTag = new SensorTag(newDev);
-                        tiles.Add(new TileModel() { Caption = $"{newDev.BluetoothAddressAsString}({newDev.Name})", Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")), UserData = sensorTag });
+                        if (newDev.Name.Contains("ShokPod"))
+                        {
+                            SensorTag sensorTag = new SensorTag(newDev);
+                            tiles.Add(new TileModel() { Caption = $"{sensorTag.AssignedToName}", Icon = new BitmapImage(new Uri("ms-appx:/Assets/shokpodSensorIcon150x150.png")), UserData = sensorTag });
+                        }
                     }
                 }
                 else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)

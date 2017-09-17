@@ -32,16 +32,9 @@ namespace MiningImpactSensor
             App.Debug("Found sensor tag: [{0}]", name);
 
             DeviceName = device.Name;
-            //if (name == "CC2650 SensorTag" || name == "SensorTag 2.0" || name == "SensorTag")
-            //{
-            //    DeviceName = "CC2650";
-            //}
-            //else
-            //{
-            //    DeviceName = "CC2541";
-            //}
             this.DeviceAddress = device.BluetoothAddressAsString;
-            this.AssignedToName = DeviceAddress;
+
+            this.AssignedToName = PersistedDevices.singleInstance.getAssignedToName(device.BluetoothAddressAsString);
         }
 
         public string DeviceAddress {get ; set;}
@@ -123,7 +116,7 @@ namespace MiningImpactSensor
             return result;
         }
 
-        private async void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
+        private  void accData_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             try
             {
